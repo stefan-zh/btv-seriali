@@ -75,11 +75,9 @@ class DisplayClipActivity : AppCompatActivity() {
      * Extracts the video clip link of the TV show.
      * The HTTP request for the video clip link is executed on the IO-optimized thread.
      */
-    private suspend fun getEpisodeClipUrl(link: String): String {
-        return withContext(Dispatchers.IO) {
-            // parses the HTML and extracts the links to the TV shows
-            val response = MainActivity.client.get<String>(link)
-            clipRegEx.find(response)!!.value.prefixURL()
-        }
+    private suspend fun getEpisodeClipUrl(link: String): String = withContext(Dispatchers.IO) {
+        // parses the HTML and extracts the links to the TV shows
+        val response = MainActivity.client.get<String>(link)
+        clipRegEx.find(response)!!.value.prefixURL()
     }
 }

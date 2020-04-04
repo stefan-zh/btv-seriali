@@ -36,7 +36,7 @@ class TvShowAdapter(
     override fun onBindViewHolder(row: TvShowRow, position: Int) {
         val tvShow = tvShows[position]
         row.tvShowIcon.tv_show_icon.setImageBitmap(tvShow.image)
-        row.tvShowLink.text = tvShow.link
+        row.tvShowName.text = tvShow.title
 
         row.rowView.setOnClickListener {
             clickListener.onSerialLinkClick(tvShow)
@@ -48,10 +48,10 @@ class TvShowAdapter(
     // Helper class that represents each TV show row in the list
     inner class TvShowRow(val rowView: View) : RecyclerView.ViewHolder(rowView) {
         val tvShowIcon: ImageView = rowView.tv_show_icon
-        val tvShowLink: TextView = rowView.tv_show_link
+        val tvShowName: TextView = rowView.tv_show_name
 
         override fun toString(): String {
-            return super.toString() + " '" + tvShowLink.text + "'"
+            return super.toString() + " '" + tvShowName.text + "'"
         }
     }
 }

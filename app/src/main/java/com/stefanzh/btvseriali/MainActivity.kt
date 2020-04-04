@@ -12,10 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.request.get
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.jsoup.Jsoup
 import java.net.URL
 
@@ -87,15 +84,23 @@ class MainActivity : AppCompatActivity() {
         // parses the HTML and extracts the links to the TV shows
         val doc = Jsoup.parse(response)
         val categories = doc.select("div.bg-order > ul > li")
-        categories.flatMap { cat ->
+        val asyncTasks = categories.flatMap { cat ->
             val anchors = cat.select("div.image > a")
             anchors.map {
-                val href = it.attr("href")
-                val imgSrc = it.select("img").attr("src").prefixURL()
-                val image = URL(imgSrc).toImageBitmap()
-                SerialLink("https://btvplus.bg$href", imgSrc, image)
+                async {
+                    val href = it.attr("href")
+                    val link = "https://btvplus.bg$href"
+                    val imgSrc = it.select("img").attr("src").prefixURL()
+                    val image = URL(imgSrc).toImageBitmap()
+
+                    // extract TV show name
+                    val showPage = client.get<String>(link)
+                    val title = Jsoup.parse(showPage).select("div.title > h2").text()
+                    SerialLink(link, imgSrc, image, title)
+                }
             }
         }
+        asyncTasks.awaitAll()
     }
 }
 

@@ -5,7 +5,8 @@ import android.graphics.Bitmap
 data class SerialLink(
     val link: String,
     val imageUrl: String,
-    val image: Bitmap
+    val image: Bitmap,
+    val title: String
 )
 
 data class Serial(
