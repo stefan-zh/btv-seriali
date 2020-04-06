@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -34,6 +35,7 @@ class DisplayClipActivity : AppCompatActivity() {
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition: Long = 0
+    private var isFullScreenMode = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,8 @@ class DisplayClipActivity : AppCompatActivity() {
         // if TV show episode is retrieved successfully, set the view to the clip display activity
         setContentView(R.layout.activity_display_clip)
         playerView = findViewById(R.id.episode_clip)
+        val fullScreenButton = findViewById<ImageButton>(R.id.exo_fullscreen_icon)
+        fullScreenButton.setOnClickListener { onFullScreenToggle(it) }
 
         // set the player
         player = SimpleExoPlayer.Builder(this@DisplayClipActivity).build()
@@ -147,5 +151,19 @@ class DisplayClipActivity : AppCompatActivity() {
         // parses the HTML and extracts the links to the TV shows
         val response = MainActivity.client.get<String>(link)
         CLIP_REGEX.find(response)!!.value.prefixURL()
+    }
+
+    /**
+     * Handles entering and exiting FullScreen Mode.
+     */
+    private fun onFullScreenToggle(imageButton: View?) {
+        val fullScreenButton = imageButton as ImageButton
+        isFullScreenMode = if (isFullScreenMode) {
+            fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_enter))
+            false
+        } else {
+            fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_exit))
+            true
+        }
     }
 }

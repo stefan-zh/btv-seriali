@@ -23,5 +23,5 @@ data class Epizod(
     val image: Bitmap,
     val name: String,
     val length: String,
-    val available: Boolean
+    val isAvailable: Boolean
 )

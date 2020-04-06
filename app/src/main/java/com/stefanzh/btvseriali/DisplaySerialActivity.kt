@@ -110,7 +110,7 @@ class DisplaySerialActivity : AppCompatActivity() {
             val elink = anchor.attr("href")
             val eImageUrl = anchor.select("img").attr("src").prefixURL()
             val eLength = anchor.select("div.video_length").text()
-            val available = anchor.select("div[class=archive]").isEmpty()
+            val eIsAvailable = anchor.select("div[class=archive]").isEmpty()
             val eName = episode.select("div.meta a").text()
             Epizod(
                 link = "https://btvplus.bg$elink",
@@ -118,7 +118,7 @@ class DisplaySerialActivity : AppCompatActivity() {
                 image = URL(eImageUrl).toImageBitmap(),
                 name = eName,
                 length = eLength,
-                available = available
+                isAvailable = eIsAvailable
             )
         }
         Serial(
@@ -126,7 +126,7 @@ class DisplaySerialActivity : AppCompatActivity() {
             imageUrl = imageUrl,
             image = URL(imageUrl).toImageBitmap(),
             description = description,
-            episodes = epizodi.filter { it.available }
+            episodes = epizodi.filter { it.isAvailable }
         )
     }
 }

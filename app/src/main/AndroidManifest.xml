@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".DisplayClipActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".DisplaySerialActivity">
 
             <!-- The meta-data tag is required if you support API level 15 and lower -->
