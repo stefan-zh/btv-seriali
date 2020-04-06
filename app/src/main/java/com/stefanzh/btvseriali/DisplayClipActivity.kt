@@ -3,6 +3,7 @@ package com.stefanzh.btvseriali
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageButton
@@ -157,6 +158,8 @@ class DisplayClipActivity : AppCompatActivity() {
         fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_exit))
 
         // hide the status and navigation bars
+        // lean-back fullscreen mode: https://developer.android.com/training/system-ui/immersive#leanback
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
         window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
         supportActionBar?.hide()

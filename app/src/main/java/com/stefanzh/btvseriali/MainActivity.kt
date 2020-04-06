@@ -23,8 +23,8 @@ class MainActivity : AppCompatActivity() {
         // set up HTTP Client
         val client = HttpClient(Android) {
             engine {
-                connectTimeout = 300_000
-                socketTimeout = 300_000
+                connectTimeout = 30_000
+                socketTimeout = 30_000
             }
         }
     }

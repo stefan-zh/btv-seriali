@@ -14,7 +14,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        app:show_timeout="10000"
+        app:show_timeout="5000"
         app:fastforward_increment="30000"
         app:rewind_increment="30000"
         android:background="#000000"/>
