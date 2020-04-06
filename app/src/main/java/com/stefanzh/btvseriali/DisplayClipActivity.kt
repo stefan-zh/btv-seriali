@@ -1,11 +1,13 @@
 package com.stefanzh.btvseriali
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -88,7 +90,6 @@ class DisplayClipActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        hideSystemUi()
         if (Util.SDK_INT < 24 || player == null) {
             initializePlayer()
         }
@@ -114,15 +115,28 @@ class DisplayClipActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("InlinedApi")
-    private fun hideSystemUi() {
-        playerView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
-            or View.SYSTEM_UI_FLAG_FULLSCREEN
-            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
-    }
+//    /**
+//     * Lean-back immersive mode for watching a video
+//     * https://developer.android.com/training/system-ui/immersive#leanback
+//     */
+//    private fun hideSystemUi() {
+//        window.decorView.systemUiVisibility =
+//            // Hide the nav bar and status bar
+//            (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//            or View.SYSTEM_UI_FLAG_FULLSCREEN
+//            // Set the content to appear under the system bars so that the
+//            // content doesn't resize when the system bars hide and show.
+//            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+//            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
+//    }
+//
+//    // Shows the system bars by removing all the flags
+//    // except for the ones that make the content appear under the system bars.
+//    private fun showSystemUI() {
+//        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+//    }
+
 
     private fun releasePlayer() {
         player?.let {
@@ -159,10 +173,24 @@ class DisplayClipActivity : AppCompatActivity() {
     private fun onFullScreenToggle(imageButton: View?) {
         val fullScreenButton = imageButton as ImageButton
         isFullScreenMode = if (isFullScreenMode) {
+            // if we are in fullscreen mode now, the click means to exit it
             fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_enter))
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+            supportActionBar?.show()
+//            showSystemUI()
             false
         } else {
+            // if we are not in fullscreen mode yet, the click means to enter it
             fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_exit))
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            supportActionBar?.hide()
+//            hideSystemUi()
+            playerView?.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             true
         }
     }
