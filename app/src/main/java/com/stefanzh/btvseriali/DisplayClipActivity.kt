@@ -3,7 +3,6 @@ package com.stefanzh.btvseriali
 import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageButton
@@ -15,10 +14,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import io.ktor.client.request.get
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class DisplayClipActivity : AppCompatActivity() {
 
@@ -29,9 +25,11 @@ class DisplayClipActivity : AppCompatActivity() {
         val CLIP_REGEX = Regex("(//vid\\.btv\\.bg[\\w\\d/-]+\\.mp4)", RegexOption.MULTILINE)
     }
 
-    private lateinit var tvShowEpisodeLink: String
+    private lateinit var videoClipUrl: String
     private var playerView: PlayerView? = null
     private var player: SimpleExoPlayer? = null
+    private var defaultLayoutParams: ViewGroup.LayoutParams? = null
+    private lateinit var fullScreenButton: ImageButton
 
     // Player state params
     private var playWhenReady = true
@@ -45,20 +43,21 @@ class DisplayClipActivity : AppCompatActivity() {
         setContentView(R.layout.activity_loading)
 
         // Get the link to the TV show episode
-        tvShowEpisodeLink = intent.getStringExtra(EXTRA_EPIZOD)!!
+        val tvShowEpisodeLink = intent.getStringExtra(EXTRA_EPIZOD)!!
+        runBlocking {
+            videoClipUrl = getEpisodeClipUrl(tvShowEpisodeLink)
+        }
     }
 
     /**
      * Prepares the Player to play the Media for this Activity.
      */
-    private fun initializePlayer() = CoroutineScope(Dispatchers.Main).launch {
-        val videoClipUrl = getEpisodeClipUrl(tvShowEpisodeLink)
-
+    private fun initializePlayer() {
         // if TV show episode is retrieved successfully, set the view to the clip display activity
         setContentView(R.layout.activity_display_clip)
         playerView = findViewById(R.id.episode_clip)
-        val fullScreenButton = findViewById<ImageButton>(R.id.exo_fullscreen_icon)
-        fullScreenButton.setOnClickListener { onFullScreenToggle(it) }
+        fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
+        fullScreenButton.setOnClickListener { onFullScreenToggle() }
 
         // set the player
         player = SimpleExoPlayer.Builder(this@DisplayClipActivity).build()
@@ -93,6 +92,9 @@ class DisplayClipActivity : AppCompatActivity() {
         if (Util.SDK_INT < 24 || player == null) {
             initializePlayer()
         }
+        if (isFullScreenMode) {
+            enterFullScreen()
+        }
     }
 
     /**
@@ -115,29 +117,9 @@ class DisplayClipActivity : AppCompatActivity() {
         }
     }
 
-//    /**
-//     * Lean-back immersive mode for watching a video
-//     * https://developer.android.com/training/system-ui/immersive#leanback
-//     */
-//    private fun hideSystemUi() {
-//        window.decorView.systemUiVisibility =
-//            // Hide the nav bar and status bar
-//            (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//            or View.SYSTEM_UI_FLAG_FULLSCREEN
-//            // Set the content to appear under the system bars so that the
-//            // content doesn't resize when the system bars hide and show.
-//            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE)
-//    }
-//
-//    // Shows the system bars by removing all the flags
-//    // except for the ones that make the content appear under the system bars.
-//    private fun showSystemUI() {
-//        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-//    }
-
-
+    /**
+     * Releases the resources of the player to free up the system resources.
+     */
     private fun releasePlayer() {
         player?.let {
             playWhenReady = it.playWhenReady
@@ -168,30 +150,55 @@ class DisplayClipActivity : AppCompatActivity() {
     }
 
     /**
-     * Handles entering and exiting FullScreen Mode.
+     * Handles entering FullScreen mode.
      */
-    private fun onFullScreenToggle(imageButton: View?) {
-        val fullScreenButton = imageButton as ImageButton
-        isFullScreenMode = if (isFullScreenMode) {
-            // if we are in fullscreen mode now, the click means to exit it
-            fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_enter))
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            supportActionBar?.show()
-//            showSystemUI()
-            false
+    private fun enterFullScreen() {
+        // change icon to "Exit" when you enter
+        fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_exit))
+
+        // hide the status and navigation bars
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        supportActionBar?.hide()
+
+        // capture the layout parameters before going into fullscreen mode
+        // we'll use this when we exit full screen
+        defaultLayoutParams = playerView?.layoutParams
+
+        // set the PlayerView to occupy the whole screen
+        playerView?.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        isFullScreenMode = true
+    }
+
+    /**
+     * Handles exiting FullScreen mode.
+     */
+    private fun exitFullScreen() {
+        // change icon to "Enter" when you exit
+        fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_enter))
+
+        // show the status and navigation bars
+        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
+        supportActionBar?.show()
+
+        // return to the layout from before entering fullscreen mode
+        playerView?.layoutParams = defaultLayoutParams
+        isFullScreenMode = false
+    }
+
+    /**
+     * If we are in fullscreen mode now, the click means to exit it,
+     * else it means to enter it.
+     */
+    private fun onFullScreenToggle() {
+        if (isFullScreenMode) {
+            exitFullScreen()
         } else {
-            // if we are not in fullscreen mode yet, the click means to enter it
-            fullScreenButton.setImageDrawable(getDrawable(R.drawable.exo_controls_fullscreen_exit))
-            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
-            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            supportActionBar?.hide()
-//            hideSystemUi()
-            playerView?.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            true
+            enterFullScreen()
         }
     }
 }
