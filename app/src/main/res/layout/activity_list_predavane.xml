@@ -5,12 +5,12 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    tools:context=".MainActivity">
+    tools:context=".ListPredavaneActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/category_list"
+        android:id="@+id/tv_show_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
-        tools:listitem="@layout/fragment_category" />
+        tools:listitem="@layout/fragment_tv_show" />
 </LinearLayout>

@@ -25,3 +25,8 @@ data class Epizod(
     val length: String,
     val isAvailable: Boolean
 )
+
+data class Category(
+    val title: String,
+    val link: String
+)
