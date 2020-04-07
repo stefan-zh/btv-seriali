@@ -51,26 +51,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // list the categories
-        val viewManager = LinearLayoutManager(this)
-        val recyclerView = findViewById<RecyclerView>(R.id.category_list).apply {
-            // use this setting to improve performance if you know that changes
-            // in content do not change the layout size of the RecyclerView
-            setHasFixedSize(true)
-
-            // use a linear layout manager, it's a convenient default for lists
-            layoutManager = viewManager
-
-            // specify an viewAdapter
-            adapter = CategoryAdapter(categories, clickListener)
-        }
-
-        // apply a divider on the RecyclerView
-        val divider = DividerItemDecoration(recyclerView.context, viewManager.orientation)
-        val drawable = ContextCompat.getDrawable(recyclerView.context, R.drawable.recycler_view_divider)
-        drawable?.let {
-            divider.setDrawable(it)
-            recyclerView.addItemDecoration(divider)
-        }
+        val layoutManager = LinearLayoutManager(this)
+        val adapter = CategoryAdapter(categories, clickListener)
+        findViewById<RecyclerView>(R.id.category_list).prepare(layoutManager, adapter)
     }
 }
 
@@ -89,4 +72,31 @@ suspend fun URL.toImageBitmap(): Bitmap {
 // Prefixes the URL correctly
 fun String.prefixURL(): String {
     return if (this.startsWith("http")) this else "https:$this"
+}
+
+/**
+ * Prepares a RecyclerView with a LinearLayoutManager and a data Adapter.
+ */
+fun <T : RecyclerView.ViewHolder> RecyclerView.prepare(
+    viewManager: LinearLayoutManager,
+    viewAdapter: RecyclerView.Adapter<T>
+): RecyclerView {
+    // use this setting to improve performance if you know that changes
+    // in content do not change the layout size of the RecyclerView
+    setHasFixedSize(true)
+
+    // use a linear layout manager, it's a convenient default for lists
+    layoutManager = viewManager
+
+    // specify an viewAdapter
+    adapter = viewAdapter
+
+    // apply a divider on the RecyclerView
+    val divider = DividerItemDecoration(context, viewManager.orientation)
+    val drawable = ContextCompat.getDrawable(context, R.drawable.recycler_view_divider)
+    drawable?.let {
+        divider.setDrawable(it)
+        addItemDecoration(divider)
+    }
+    return this
 }

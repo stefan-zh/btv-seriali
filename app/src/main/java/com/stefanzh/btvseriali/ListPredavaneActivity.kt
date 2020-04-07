@@ -3,8 +3,6 @@ package com.stefanzh.btvseriali
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.ktor.client.request.get
@@ -43,26 +41,9 @@ class ListPredavaneActivity : AppCompatActivity() {
 
             // if shows are retrieved successfully, set the view to the tv shows activity
             setContentView(R.layout.activity_list_predavane)
-            val viewManager = LinearLayoutManager(this@ListPredavaneActivity)
-            val recyclerView = findViewById<RecyclerView>(R.id.tv_show_list).apply {
-                // use this setting to improve performance if you know that changes
-                // in content do not change the layout size of the RecyclerView
-                setHasFixedSize(true)
-
-                // use a linear layout manager, it's a convenient default for lists
-                layoutManager = viewManager
-
-                // specify an viewAdapter
-                adapter = TvShowAdapter(tvShows, clickListener)
-            }
-
-            // apply a divider on the RecyclerView
-            val divider = DividerItemDecoration(recyclerView.context, viewManager.orientation)
-            val drawable = ContextCompat.getDrawable(recyclerView.context, R.drawable.recycler_view_divider)
-            drawable?.let {
-                divider.setDrawable(it)
-                recyclerView.addItemDecoration(divider)
-            }
+            val layoutManager = LinearLayoutManager(this@ListPredavaneActivity)
+            val adapter = TvShowAdapter(tvShows, clickListener)
+            findViewById<RecyclerView>(R.id.tv_show_list).prepare(layoutManager, adapter)
         }
     }
 
