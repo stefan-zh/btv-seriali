@@ -44,18 +44,16 @@ class ListPredavaneActivity : AppCompatActivity() {
             // if shows are retrieved successfully, set the view to the tv shows activity
             setContentView(R.layout.activity_list_predavane)
             val viewManager = LinearLayoutManager(this@ListPredavaneActivity)
-            val viewAdapter = TvShowAdapter(tvShows, clickListener)
-
             val recyclerView = findViewById<RecyclerView>(R.id.tv_show_list).apply {
                 // use this setting to improve performance if you know that changes
                 // in content do not change the layout size of the RecyclerView
                 setHasFixedSize(true)
 
-                // use a linear layout manager
+                // use a linear layout manager, it's a convenient default for lists
                 layoutManager = viewManager
 
-                // specify an viewAdapter (see also next example)
-                adapter = viewAdapter
+                // specify an viewAdapter
+                adapter = TvShowAdapter(tvShows, clickListener)
             }
 
             // apply a divider on the RecyclerView

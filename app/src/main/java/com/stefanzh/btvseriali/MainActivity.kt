@@ -52,17 +52,16 @@ class MainActivity : AppCompatActivity() {
 
         // list the categories
         val viewManager = LinearLayoutManager(this)
-        val viewAdapter = CategoryAdapter(categories, clickListener)
         val recyclerView = findViewById<RecyclerView>(R.id.category_list).apply {
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
             setHasFixedSize(true)
 
-            // use a linear layout manager
+            // use a linear layout manager, it's a convenient default for lists
             layoutManager = viewManager
 
-            // specify an viewAdapter (see also next example)
-            adapter = viewAdapter
+            // specify an viewAdapter
+            adapter = CategoryAdapter(categories, clickListener)
         }
 
         // apply a divider on the RecyclerView
