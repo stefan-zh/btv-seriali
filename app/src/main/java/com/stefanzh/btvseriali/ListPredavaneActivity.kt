@@ -21,7 +21,7 @@ class ListPredavaneActivity : AppCompatActivity() {
     private val clickListener = object : OnSerialLinkClickListener {
         override fun onSerialLinkClick(tvShow: SerialLink) {
             val intent = Intent(this@ListPredavaneActivity, DisplaySerialActivity::class.java).apply {
-                putExtra(DisplaySerialActivity.EXTRA_SERIAL, tvShow.link)
+                putExtra(DisplaySerialActivity.EXTRA_SERIAL, tvShow)
             }
             startActivity(intent)
         }
@@ -32,12 +32,13 @@ class ListPredavaneActivity : AppCompatActivity() {
         // start the loading screen
         setContentView(R.layout.activity_loading)
 
-        // Get the link to the TV show episode
-        val categoryLink = intent.getStringExtra(EXTRA_CATEGORY)!!
+        // Get the TV show category
+        val category = intent.getParcelableExtra<Category>(EXTRA_CATEGORY)!!
+        title = category.title
 
         CoroutineScope(Dispatchers.Main).launch {
             // launch this call on UI thread but its result will be computed on IO thread
-            val tvShows = getTvShows(categoryLink)
+            val tvShows = getTvShows(category.link)
 
             // if shows are retrieved successfully, set the view to the tv shows activity
             setContentView(R.layout.activity_list_predavane)

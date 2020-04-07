@@ -15,7 +15,9 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import io.ktor.client.request.get
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class DisplayClipActivity : AppCompatActivity() {
 
@@ -43,10 +45,11 @@ class DisplayClipActivity : AppCompatActivity() {
         // start the loading screen
         setContentView(R.layout.activity_loading)
 
-        // Get the link to the TV show episode
-        val tvShowEpisodeLink = intent.getStringExtra(EXTRA_EPIZOD)!!
+        // Get the TV show episode
+        val tvShowEpisode = intent.getParcelableExtra<Epizod>(EXTRA_EPIZOD)!!
+        title = tvShowEpisode.name
         runBlocking {
-            videoClipUrl = getEpisodeClipUrl(tvShowEpisodeLink)
+            videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
         }
     }
 

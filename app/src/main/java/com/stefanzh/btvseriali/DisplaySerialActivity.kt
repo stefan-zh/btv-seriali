@@ -26,7 +26,7 @@ class DisplaySerialActivity : AppCompatActivity() {
     private val clickListener = object : OnEpizodClickListener {
         override fun onEpizodClick(episode: Epizod) {
             val intent = Intent(this@DisplaySerialActivity, DisplayClipActivity::class.java).apply {
-                putExtra(DisplayClipActivity.EXTRA_EPIZOD, episode.link)
+                putExtra(DisplayClipActivity.EXTRA_EPIZOD, episode)
             }
             startActivity(intent)
         }
@@ -37,11 +37,12 @@ class DisplaySerialActivity : AppCompatActivity() {
         // start the loading screen
         setContentView(R.layout.activity_loading)
 
-        // Get the link to the TV show
-        val tvShowLink = intent.getStringExtra(EXTRA_SERIAL)!!
+        // Get the TV show
+        val tvShow = intent.getParcelableExtra<SerialLink>(EXTRA_SERIAL)!!
+        title = tvShow.title
 
         CoroutineScope(Dispatchers.Main).launch {
-            val serial = getSerial(tvShowLink)
+            val serial = getSerial(tvShow.link)
 
             // if TV show is retrieved successfully, set the view to the tv show display activity
             setContentView(R.layout.activity_display_serial)
