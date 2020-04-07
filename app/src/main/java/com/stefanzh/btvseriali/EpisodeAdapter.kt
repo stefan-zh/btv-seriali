@@ -1,10 +1,10 @@
 package com.stefanzh.btvseriali
 
 
+import android.graphics.drawable.BitmapDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_episode.view.*
@@ -31,14 +31,16 @@ class EpisodeAdapter(
     }
 
     /**
-     * Places the Tv show row into the view
+     * Places the Episode row into the view. It includes an image of the Episode to the left
+     * and the title of the episode along with its duration next to the image.
      */
     override fun onBindViewHolder(row: EpisodeRow, position: Int) {
         val episode = episodes[position]
-        row.episodeIcon.episode_icon.setImageBitmap(episode.image)
-        // construct the episode name from the string template
-        val episodeName = row.episodeText.resources.getString(R.string.episode_name, episode.name, episode.length)
-        row.episodeText.text = episodeName
+        val imageToLeft = BitmapDrawable(row.episodeRow.resources, episode.image)
+        row.episodeRow.setCompoundDrawablesWithIntrinsicBounds(imageToLeft, null, null, null)
+        // construct the episode name with duration from the string template
+        val episodeName = row.episodeRow.resources.getString(R.string.episode_name, episode.name, episode.length)
+        row.episodeRow.text = episodeName
 
         row.rowView.setOnClickListener {
             clickListener.onEpizodClick(episode)
@@ -49,11 +51,10 @@ class EpisodeAdapter(
 
     // Helper class that represents each episode row in the list
     inner class EpisodeRow(val rowView: View) : RecyclerView.ViewHolder(rowView) {
-        val episodeIcon: ImageView = rowView.episode_icon
-        val episodeText: TextView = rowView.episode_text
+        val episodeRow: TextView = rowView.episode_row
 
         override fun toString(): String {
-            return super.toString() + " '" + episodeText.text + "'"
+            return super.toString() + " '" + episodeRow.text + "'"
         }
     }
 }
