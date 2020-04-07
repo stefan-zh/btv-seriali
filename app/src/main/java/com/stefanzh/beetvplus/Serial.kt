@@ -1,4 +1,4 @@
-package com.stefanzh.btvseriali
+package com.stefanzh.beetvplus
 
 import android.graphics.Bitmap
 import android.os.Parcelable

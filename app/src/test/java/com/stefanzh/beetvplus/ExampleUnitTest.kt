@@ -1,4 +1,4 @@
-package com.stefanzh.btvseriali
+package com.stefanzh.beetvplus
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

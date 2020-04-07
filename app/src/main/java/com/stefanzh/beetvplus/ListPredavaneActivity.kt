@@ -1,4 +1,4 @@
-package com.stefanzh.btvseriali
+package com.stefanzh.beetvplus
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +14,7 @@ import java.net.URL
 class ListPredavaneActivity : AppCompatActivity() {
 
     companion object {
-        const val EXTRA_CATEGORY = "com.stefanzh.btvseriali.CATEGORY"
+        const val EXTRA_CATEGORY = "com.stefanzh.beetvplus.CATEGORY"
     }
 
     // set up a click listener for each TV show row

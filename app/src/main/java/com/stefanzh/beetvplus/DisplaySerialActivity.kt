@@ -1,4 +1,4 @@
-package com.stefanzh.btvseriali
+package com.stefanzh.beetvplus
 
 import android.content.Intent
 import android.os.Bundle
@@ -19,7 +19,7 @@ import java.net.URL
 class DisplaySerialActivity : AppCompatActivity() {
 
     companion object {
-        const val EXTRA_SERIAL = "com.stefanzh.btvseriali.SERIAL"
+        const val EXTRA_SERIAL = "com.stefanzh.beetvplus.SERIAL"
     }
 
     // set up a click listener for each episode row

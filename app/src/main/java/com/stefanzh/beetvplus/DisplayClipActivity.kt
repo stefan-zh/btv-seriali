@@ -1,4 +1,4 @@
-package com.stefanzh.btvseriali
+package com.stefanzh.beetvplus
 
 import android.net.Uri
 import android.os.Bundle
@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 class DisplayClipActivity : AppCompatActivity() {
 
     companion object {
-        const val EXTRA_EPIZOD = "com.stefanzh.btvseriali.EPIZOD"
+        const val EXTRA_EPIZOD = "com.stefanzh.beetvplus.EPIZOD"
 
         // RegEx to capture the video clip source location on the bTV website
         val CLIP_REGEX = Regex("(//vid\\.btv\\.bg[\\w\\d/-]+\\.mp4)", RegexOption.MULTILINE)
