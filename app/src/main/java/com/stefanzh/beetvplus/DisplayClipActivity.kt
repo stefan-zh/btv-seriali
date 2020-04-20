@@ -50,39 +50,44 @@ class DisplayClipActivity : AppCompatActivity() {
         // Get the TV show episode
         tvShowEpisode = intent.getParcelableExtra(EXTRA_EPIZOD)!!
         title = tvShowEpisode.name
+
+        // set the view to the clip display activity
+        setContentView(R.layout.activity_display_clip)
+        playerView = findViewById(R.id.episode_clip)
+        fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
+        fullScreenButton.setOnClickListener { onFullScreenToggle() }
     }
 
     /**
      * Prepares the Player to play the Media for this Activity.
      */
-    private fun initializePlayer() = CoroutineScope(Dispatchers.Main).launch {
-        if (!::videoClipUrl.isInitialized) {
-            videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
-        }
-
-        // if TV show episode is retrieved successfully, set the view to the clip display activity
-        setContentView(R.layout.activity_display_clip)
-        playerView = findViewById(R.id.episode_clip)
-        fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
-        fullScreenButton.setOnClickListener { onFullScreenToggle() }
-
-        // set the player
+    private fun initializePlayer() {
+        // first thing to do is set up the player to avoid the double initialization that happens
+        // sometimes if onStart() runs and then onResume() checks if the player is null
         player = SimpleExoPlayer.Builder(this@DisplayClipActivity).build()
         playerView?.player = player
 
-        // build the MediaSource from the URI
-        val uri = Uri.parse(videoClipUrl)
-        val dataSourceFactory = DefaultDataSourceFactory(this@DisplayClipActivity, "exoplayer-agent")
-        val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
+        // set up the playback on a background thread to free the main thread
+        CoroutineScope(Dispatchers.Main).launch {
+            // fetch the video clip URL if not initialized
+            if (!::videoClipUrl.isInitialized) {
+                videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
+            }
 
-        // use stored state (if any) to resume (or start) playback
-        player?.playWhenReady = playWhenReady
-        player?.seekTo(currentWindow, playbackPosition)
-        player?.prepare(mediaSource, false, false)
+            // build the MediaSource from the URI
+            val uri = Uri.parse(videoClipUrl)
+            val dataSourceFactory = DefaultDataSourceFactory(this@DisplayClipActivity, "exoplayer-agent")
+            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
 
-        // if previously in full screen, resume it
-        if (isFullScreenMode) {
-            enterFullScreen()
+            // use stored state (if any) to resume (or start) playback
+            player?.playWhenReady = playWhenReady
+            player?.seekTo(currentWindow, playbackPosition)
+            player?.prepare(mediaSource, false, false)
+
+            // if previously in full screen, resume it
+            if (isFullScreenMode) {
+                enterFullScreen()
+            }
         }
     }
 
