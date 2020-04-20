@@ -15,8 +15,9 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import io.ktor.client.request.get
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DisplayClipActivity : AppCompatActivity() {
@@ -28,6 +29,7 @@ class DisplayClipActivity : AppCompatActivity() {
         val CLIP_REGEX = Regex("(//vid\\.btv\\.bg[\\w\\d/-]+\\.mp4)", RegexOption.MULTILINE)
     }
 
+    private lateinit var tvShowEpisode: Epizod
     private lateinit var videoClipUrl: String
     private var playerView: PlayerView? = null
     private var player: SimpleExoPlayer? = null
@@ -46,17 +48,18 @@ class DisplayClipActivity : AppCompatActivity() {
         setContentView(R.layout.activity_loading)
 
         // Get the TV show episode
-        val tvShowEpisode = intent.getParcelableExtra<Epizod>(EXTRA_EPIZOD)!!
+        tvShowEpisode = intent.getParcelableExtra(EXTRA_EPIZOD)!!
         title = tvShowEpisode.name
-        runBlocking {
-            videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
-        }
     }
 
     /**
      * Prepares the Player to play the Media for this Activity.
      */
-    private fun initializePlayer() {
+    private fun initializePlayer() = CoroutineScope(Dispatchers.Main).launch {
+        if (!::videoClipUrl.isInitialized) {
+            videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
+        }
+
         // if TV show episode is retrieved successfully, set the view to the clip display activity
         setContentView(R.layout.activity_display_clip)
         playerView = findViewById(R.id.episode_clip)
@@ -76,6 +79,11 @@ class DisplayClipActivity : AppCompatActivity() {
         player?.playWhenReady = playWhenReady
         player?.seekTo(currentWindow, playbackPosition)
         player?.prepare(mediaSource, false, false)
+
+        // if previously in full screen, resume it
+        if (isFullScreenMode) {
+            enterFullScreen()
+        }
     }
 
     /**
@@ -95,9 +103,6 @@ class DisplayClipActivity : AppCompatActivity() {
         super.onResume()
         if (Util.SDK_INT < 24 || player == null) {
             initializePlayer()
-        }
-        if (isFullScreenMode) {
-            enterFullScreen()
         }
     }
 
