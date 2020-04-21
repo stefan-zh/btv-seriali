@@ -2,7 +2,6 @@ package com.stefanzh.beetvplus
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.ktor.client.request.get
@@ -11,7 +10,7 @@ import org.jsoup.Jsoup
 import java.net.URL
 
 
-class ListPredavaneActivity : AppCompatActivity() {
+class ListPredavaneActivity : CastingActivity() {
 
     companion object {
         const val EXTRA_CATEGORY = "com.stefanzh.beetvplus.CATEGORY"
@@ -53,7 +52,7 @@ class ListPredavaneActivity : AppCompatActivity() {
      * The HTTP request for shows is executed on the IO-optimized thread.
      */
     private suspend fun getTvShows(categoryLink: String): List<SerialLink> = withContext(Dispatchers.IO) {
-        val response = MainActivity.client.get<String>(categoryLink)
+        val response = client.get<String>(categoryLink)
         // parses the HTML and extracts the links to the TV shows
         val doc = Jsoup.parse(response)
         val categories = doc.select("div.bg-order > ul > li")
@@ -67,7 +66,7 @@ class ListPredavaneActivity : AppCompatActivity() {
                     val image = URL(imgSrc).toImageBitmap()
 
                     // extract TV show name
-                    val showPage = MainActivity.client.get<String>(link)
+                    val showPage = client.get<String>(link)
                     val title = Jsoup.parse(showPage).select("div.title > h2").text()
                     SerialLink(link, imgSrc, image, title)
                 }

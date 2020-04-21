@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
@@ -20,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DisplayClipActivity : AppCompatActivity() {
+class DisplayClipActivity : CastingActivity() {
 
     companion object {
         const val EXTRA_EPIZOD = "com.stefanzh.beetvplus.EPIZOD"
@@ -159,7 +158,7 @@ class DisplayClipActivity : AppCompatActivity() {
      */
     private suspend fun getEpisodeClipUrl(link: String): String = withContext(Dispatchers.IO) {
         // parses the HTML and extracts the links to the TV shows
-        val response = MainActivity.client.get<String>(link)
+        val response = client.get<String>(link)
         CLIP_REGEX.find(response)!!.value.prefixURL()
     }
 

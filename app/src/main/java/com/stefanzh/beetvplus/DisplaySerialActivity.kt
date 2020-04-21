@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.ktor.client.request.get
@@ -16,7 +15,7 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.net.URL
 
-class DisplaySerialActivity : AppCompatActivity() {
+class DisplaySerialActivity : CastingActivity() {
 
     companion object {
         const val EXTRA_SERIAL = "com.stefanzh.beetvplus.SERIAL"
@@ -74,7 +73,7 @@ class DisplaySerialActivity : AppCompatActivity() {
      */
     private suspend fun getSerial(link: String): Serial = withContext(Dispatchers.IO) {
         // parses the HTML and extracts the links to the TV shows
-        val response = MainActivity.client.get<String>(link)
+        val response = client.get<String>(link)
         val doc = Jsoup.parse(response)
 
         // extract metadata

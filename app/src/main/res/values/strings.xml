@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">beeTV Plus</string>
+    <string name="media_route_menu_title">Play on…</string>
     <string name="image_description">image</string>
     <string name="text_epizodi">Епизоди</string>
     <string name="episode_name">%1$s\n\n%2$s</string>
