@@ -1,4 +1,4 @@
-package com.stefanzh.beetvplus
+package com.stefanzh.beetvplus.adapter
 
 
 import android.view.LayoutInflater
@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.stefanzh.beetvplus.Category
+import com.stefanzh.beetvplus.R
 import kotlinx.android.synthetic.main.fragment_category.view.*
 
 interface OnCategoryClickListener {

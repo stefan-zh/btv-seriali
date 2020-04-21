@@ -19,17 +19,17 @@
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.google.android.exoplayer2.ext.cast.DefaultCastOptionsProvider" />
 
-        <activity android:name=".DisplayClipActivity"
+        <activity android:name=".activity.DisplayClipActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:parentActivityName=".DisplaySerialActivity">
+            android:parentActivityName=".activity.DisplaySerialActivity">
         </activity>
         <activity
-            android:name=".DisplaySerialActivity"
+            android:name=".activity.DisplaySerialActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:parentActivityName=".ListPredavaneActivity">
+            android:parentActivityName=".activity.ListPredavaneActivity">
         </activity>
         <activity
-            android:name=".ListPredavaneActivity"
+            android:name=".activity.ListPredavaneActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".MainActivity">
         </activity>

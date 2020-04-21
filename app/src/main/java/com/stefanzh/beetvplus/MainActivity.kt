@@ -4,6 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.stefanzh.beetvplus.activity.CastingActivity
+import com.stefanzh.beetvplus.activity.ListPredavaneActivity
+import com.stefanzh.beetvplus.activity.prepare
+import com.stefanzh.beetvplus.adapter.CategoryAdapter
+import com.stefanzh.beetvplus.adapter.OnCategoryClickListener
 
 class MainActivity : CastingActivity() {
 

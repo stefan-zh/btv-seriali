@@ -1,4 +1,4 @@
-package com.stefanzh.beetvplus
+package com.stefanzh.beetvplus.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.stefanzh.beetvplus.*
+import com.stefanzh.beetvplus.adapter.EpisodeAdapter
+import com.stefanzh.beetvplus.adapter.OnEpizodClickListener
 import io.ktor.client.request.get
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

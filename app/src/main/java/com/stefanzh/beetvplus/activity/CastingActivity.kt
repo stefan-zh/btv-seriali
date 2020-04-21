@@ -1,4 +1,4 @@
-package com.stefanzh.beetvplus
+package com.stefanzh.beetvplus.activity
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
+import com.stefanzh.beetvplus.R
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.Dispatchers

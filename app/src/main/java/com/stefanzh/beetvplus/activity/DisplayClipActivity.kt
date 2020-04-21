@@ -1,4 +1,4 @@
-package com.stefanzh.beetvplus
+package com.stefanzh.beetvplus.activity
 
 import android.net.Uri
 import android.os.Bundle
@@ -13,6 +13,8 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
+import com.stefanzh.beetvplus.Epizod
+import com.stefanzh.beetvplus.R
 import io.ktor.client.request.get
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

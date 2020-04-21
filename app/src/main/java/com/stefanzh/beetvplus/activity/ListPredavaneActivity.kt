@@ -1,9 +1,12 @@
-package com.stefanzh.beetvplus
+package com.stefanzh.beetvplus.activity
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.stefanzh.beetvplus.*
+import com.stefanzh.beetvplus.adapter.OnSerialLinkClickListener
+import com.stefanzh.beetvplus.adapter.TvShowAdapter
 import io.ktor.client.request.get
 import kotlinx.coroutines.*
 import org.jsoup.Jsoup
