@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.cast.framework.CastButtonFactory
 import com.google.android.gms.cast.framework.CastContext
-import com.google.android.gms.cast.framework.CastState
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import kotlinx.coroutines.Dispatchers
@@ -42,12 +41,6 @@ abstract class CastingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         castContext = CastContext.getSharedInstance(this)
-
-        // according to official docs, the Cast button should not appear
-        // when no devices are available and should appear when receivers are available
-        castContext.addCastStateListener { state ->
-            castButton.isVisible = state != CastState.NO_DEVICES_AVAILABLE
-        }
     }
 
     /**
