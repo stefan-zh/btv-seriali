@@ -3,6 +3,7 @@ package com.stefanzh.beetvplus.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -63,10 +64,16 @@ class DisplaySerialActivity : CastingActivity() {
             findViewById<ImageView>(R.id.serial_image).apply { setImageBitmap(serial.image) }
             findViewById<TextView>(R.id.serial_description).apply { text = serial.description }
 
-            // set the episodes
-            val layoutManager = LinearLayoutManager(this@DisplaySerialActivity)
-            val adapter = EpisodeAdapter(serial.episodes, clickListener)
-            findViewById<RecyclerView>(R.id.episode_list).prepare(layoutManager, adapter)
+            // display the list of episodes when available
+            val episodesListView = findViewById<RecyclerView>(R.id.episode_list)
+            if (serial.episodes.isEmpty()) {
+                episodesListView.visibility = View.GONE
+                findViewById<TextView>(R.id.empty_episodes).apply { visibility = View.VISIBLE }
+            } else {
+                val layoutManager = LinearLayoutManager(this@DisplaySerialActivity)
+                val adapter = EpisodeAdapter(serial.episodes, clickListener)
+                episodesListView.prepare(layoutManager, adapter)
+            }
         }
     }
 

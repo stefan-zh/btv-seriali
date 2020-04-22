@@ -5,4 +5,5 @@
     <string name="text_epizodi">Епизоди</string>
     <string name="episode_name">%1$s\n\n%2$s</string>
     <string name="episode_locked">Този епизод не е наличен за свободно гледане. Можете да го гледате на Voyo.bg</string>
+    <string name="no_videos_found">В момента няма налични епизоди за това предаване.</string>
 </resources>
