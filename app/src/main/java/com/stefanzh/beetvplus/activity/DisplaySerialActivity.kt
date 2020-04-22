@@ -77,15 +77,6 @@ class DisplaySerialActivity : CastingActivity() {
         }
     }
 
-    // When back button is pressed, close this activity, which will go back to previous screen
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     /**
      * Extracts the episodes and other info about the TV show.
      * The HTTP request for shows is executed on the IO-optimized thread.

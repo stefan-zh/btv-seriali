@@ -56,6 +56,17 @@ abstract class CastingActivity : AppCompatActivity() {
         castButton = CastButtonFactory.setUpMediaRouteButton(applicationContext, menu, R.id.media_route_menu_item)
         return result
     }
+
+    /**
+     * When back button is pressed, close this activity, which will go back to previous screen
+     */
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }
 
 /**
