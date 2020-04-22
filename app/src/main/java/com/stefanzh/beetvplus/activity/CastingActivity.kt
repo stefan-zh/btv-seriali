@@ -1,10 +1,12 @@
 package com.stefanzh.beetvplus.activity
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -54,6 +56,14 @@ abstract class CastingActivity : AppCompatActivity() {
         castButton = CastButtonFactory.setUpMediaRouteButton(applicationContext, menu, R.id.media_route_menu_item)
         return result
     }
+}
+
+/**
+ * Creates a Toast message.
+ */
+fun Context.toastLong(str: String) {
+    val toast = Toast.makeText(this, str, Toast.LENGTH_LONG)
+    toast.show()
 }
 
 /**

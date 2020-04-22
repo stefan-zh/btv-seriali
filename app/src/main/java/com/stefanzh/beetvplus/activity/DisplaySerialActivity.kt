@@ -7,7 +7,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.stefanzh.beetvplus.*
+import com.stefanzh.beetvplus.Epizod
+import com.stefanzh.beetvplus.R
+import com.stefanzh.beetvplus.Serial
+import com.stefanzh.beetvplus.SerialLink
 import com.stefanzh.beetvplus.adapter.EpisodeAdapter
 import com.stefanzh.beetvplus.adapter.OnEpizodClickListener
 import io.ktor.client.request.get
@@ -27,10 +30,16 @@ class DisplaySerialActivity : CastingActivity() {
     // set up a click listener for each episode row
     private val clickListener = object : OnEpizodClickListener {
         override fun onEpizodClick(episode: Epizod) {
-            val intent = Intent(this@DisplaySerialActivity, DisplayClipActivity::class.java).apply {
-                putExtra(DisplayClipActivity.EXTRA_EPIZOD, episode)
+            if (!episode.isAvailable) {
+                // send toast that the episode is locked
+                val episodeLockedMsg = applicationContext.resources.getString(R.string.episode_locked)
+                applicationContext.toastLong(episodeLockedMsg)
+            } else {
+                val intent = Intent(this@DisplaySerialActivity, DisplayClipActivity::class.java).apply {
+                    putExtra(DisplayClipActivity.EXTRA_EPIZOD, episode)
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
         }
     }
 
@@ -108,7 +117,7 @@ class DisplaySerialActivity : CastingActivity() {
             imageUrl = imageUrl,
             image = URL(imageUrl).toImageBitmap(),
             description = description,
-            episodes = epizodi.filter { it.isAvailable }
+            episodes = epizodi
         )
     }
 }
