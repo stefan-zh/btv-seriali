@@ -2,7 +2,6 @@ package com.stefanzh.beetvplus.activity
 
 import android.net.Uri
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -32,9 +31,9 @@ class DisplayClipActivity : CastingActivity() {
 
     private lateinit var tvShowEpisode: Epizod
     private lateinit var videoClipUrl: String
-    private var playerView: PlayerView? = null
+    private lateinit var playerView: PlayerView
     private var player: SimpleExoPlayer? = null
-    private var defaultLayoutParams: ViewGroup.LayoutParams? = null
+    private lateinit var defaultLayoutParams: ViewGroup.LayoutParams
     private lateinit var fullScreenButton: ImageButton
 
     // Player state params
@@ -66,7 +65,7 @@ class DisplayClipActivity : CastingActivity() {
         // first thing to do is set up the player to avoid the double initialization that happens
         // sometimes if onStart() runs and then onResume() checks if the player is null
         player = SimpleExoPlayer.Builder(this@DisplayClipActivity).build()
-        playerView?.player = player
+        playerView.player = player
 
         // set up the playback on a background thread to free the main thread
         CoroutineScope(Dispatchers.Main).launch {
@@ -171,10 +170,10 @@ class DisplayClipActivity : CastingActivity() {
 
         // capture the layout parameters before going into fullscreen mode
         // we'll use this when we exit full screen
-        defaultLayoutParams = playerView?.layoutParams
+        defaultLayoutParams = playerView.layoutParams
 
         // set the PlayerView to occupy the whole screen
-        playerView?.layoutParams = LinearLayout.LayoutParams(
+        playerView.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
@@ -194,7 +193,7 @@ class DisplayClipActivity : CastingActivity() {
         supportActionBar?.show()
 
         // return to the layout from before entering fullscreen mode
-        playerView?.layoutParams = defaultLayoutParams
+        playerView.layoutParams = defaultLayoutParams
         isFullScreenMode = false
     }
 
