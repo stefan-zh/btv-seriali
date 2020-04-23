@@ -38,7 +38,7 @@ abstract class CastingActivity : AppCompatActivity() {
     }
 
     // the Cast context
-    private lateinit var castContext: CastContext
+    protected lateinit var castContext: CastContext
     private lateinit var castButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {

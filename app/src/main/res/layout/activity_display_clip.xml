@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/episode_clip"
+        android:id="@+id/local_player_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:controller_layout_id="@layout/player_playback_control"
