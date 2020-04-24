@@ -71,7 +71,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     /**
      * Prepares the local and remote players for playback.
      */
-    private fun initializePlayer() {
+    private fun initializePlayers() {
         // first thing to do is set up the player to avoid the double initialization that happens
         // sometimes if onStart() runs and then onResume() checks if the player is null
         exoPlayer = SimpleExoPlayer.Builder(this).build()
@@ -85,20 +85,15 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         castPlayer = CastPlayer(castContext)
         castPlayer?.setSessionAvailabilityListener(this)
 
-        // if there is a cast session available, prepare the remote player,
-        // otherwise use the local player
-        if (castPlayer?.isCastSessionAvailable == true) {
-            setCurrentPlayer(castPlayer)
-        } else {
-            setCurrentPlayer(exoPlayer)
-        }
+        // start the local player
+        playOnPlayer(exoPlayer)
     }
 
     /**
      * Fetches the video from the network if needed and then sets it
      * on the current player (local or remote), whichever is active.
      */
-    private suspend fun setPlayVideo() {
+    private suspend fun startPlayback() {
         // fetch the video clip URL if not initialized
         if (!::videoClipUrl.isInitialized) {
             videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
@@ -150,14 +145,14 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     override fun onStart() {
         super.onStart()
         if (Util.SDK_INT >= 24) {
-            initializePlayer()
+            initializePlayers()
         }
     }
 
     override fun onResume() {
         super.onResume()
         if (Util.SDK_INT < 24 || exoPlayer == null) {
-            initializePlayer()
+            initializePlayers()
         }
     }
 
@@ -169,39 +164,38 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     override fun onPause() {
         super.onPause()
-        if (Util.SDK_INT < 24) {
-            release()
+        if (Util.SDK_INT < 24 && currentPlayer == exoPlayer) {
+            rememberState(exoPlayer)
+            releaseLocalPlayer()
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if (Util.SDK_INT >= 24) {
-            release()
+        if (Util.SDK_INT >= 24 && currentPlayer == exoPlayer) {
+            rememberState(exoPlayer)
+            releaseLocalPlayer()
         }
     }
 
     /**
-     * Releases the resources of the players to free up the system resources.
+     * Remembers the state of the playback of this Player.
      */
-    private fun release() {
-        // release local player resources
-        exoPlayer?.let {
+    private fun rememberState(player: Player?) {
+        player?.let {
             playWhenReady = it.playWhenReady
             playbackPosition = it.currentPosition
             currentWindow = it.currentWindowIndex
-            it.release()
         }
+    }
+
+    /**
+     * Releases the resources of the local player back to the system.
+     */
+    private fun releaseLocalPlayer() {
+        exoPlayer?.release()
         exoPlayer = null
         playerView.player = null
-
-//        // release Cast player resources
-//        castPlayer?.setSessionAvailabilityListener(null)
-//        castPlayer?.release()
-//        castPlayer = null
-//
-//        // release the current player
-//        currentPlayer = null
     }
 
     /**
@@ -267,18 +261,17 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
     // CastPlayer.SessionAvailabilityListener implementation.
     override fun onCastSessionAvailable() {
-        setCurrentPlayer(castPlayer)
+        playOnPlayer(castPlayer)
     }
 
     override fun onCastSessionUnavailable() {
-        setCurrentPlayer(exoPlayer)
+        playOnPlayer(exoPlayer)
     }
 
     /**
-     * Sets the current player to the selected player performing all necessary
-     * set up routines.
+     * Sets the current player to the selected player and starts playback.
      */
-    private fun setCurrentPlayer(player: Player?) {
+    private fun playOnPlayer(player: Player?) {
         if (currentPlayer == player) {
             return
         }
@@ -288,10 +281,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         // save state from the existing player
         currentPlayer?.let {
             if (it.playbackState != Player.STATE_ENDED) {
-                playbackPosition = it.currentPosition
-                playWhenReady = it.playWhenReady
-                currentWindow = it.currentWindowIndex
-                // TODO: see window index
+                rememberState(it)
             }
             it.stop(true)
         }
@@ -300,6 +290,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         currentPlayer = player
 
         // set up the playback on a background thread to free the main thread
-        CoroutineScope(Dispatchers.Main).launch { setPlayVideo() }
+        CoroutineScope(Dispatchers.Main).launch { startPlayback() }
     }
 }
