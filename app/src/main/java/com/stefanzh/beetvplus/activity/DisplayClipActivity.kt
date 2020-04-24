@@ -17,9 +17,12 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.cast.MediaInfo
+import com.google.android.gms.cast.MediaMetadata
 import com.google.android.gms.cast.MediaQueueItem
+import com.google.android.gms.common.images.WebImage
 import com.stefanzh.beetvplus.Epizod
 import com.stefanzh.beetvplus.R
+import com.stefanzh.beetvplus.SerialLink
 import io.ktor.client.request.get
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,14 +31,8 @@ import kotlinx.coroutines.withContext
 
 class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
-    companion object {
-        const val EXTRA_EPIZOD = "com.stefanzh.beetvplus.EPIZOD"
-
-        // RegEx to capture the video clip source location on the bTV website
-        val CLIP_REGEX = Regex("(//vid\\.btv\\.bg[\\w\\d/-]+\\.mp4)", RegexOption.MULTILINE)
-    }
-
     private lateinit var tvShowEpisode: Epizod
+    private lateinit var serial: SerialLink
     private lateinit var videoClipUrl: String
 
     // the local and remote players
@@ -61,6 +58,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
         // Get the TV show episode
         tvShowEpisode = intent.getParcelableExtra(EXTRA_EPIZOD)!!
+        serial = intent.getParcelableExtra(EXTRA_SERIAL)!!
         title = tvShowEpisode.name
 
         // set the view to the clip display activity
@@ -126,10 +124,16 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
         // if the current player is the CastPlayer, play from it
         if (currentPlayer == castPlayer) {
+            val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_TV_SHOW)
+            metadata.putString(MediaMetadata.KEY_TITLE, serial.title)
+            metadata.putString(MediaMetadata.KEY_SUBTITLE, tvShowEpisode.name)
+            metadata.addImage(WebImage(Uri.parse(serial.imageUrl)))
+            metadata.addImage(WebImage(Uri.parse(tvShowEpisode.imageUrl)))
+
             val mediaInfo = MediaInfo.Builder(videoClipUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setContentType(MimeTypes.VIDEO_MP4)
-//                .setMetadata(metadata)
+                .setMetadata(metadata)
 //                .setCustomData(DefaultMediaItemConverter.getCustomData(item))
                 .build()
             val mediaItem = MediaQueueItem.Builder(mediaInfo).build()
@@ -191,13 +195,13 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         exoPlayer = null
         playerView.player = null
 
-        // release Cast player resources
-        castPlayer?.setSessionAvailabilityListener(null)
-        castPlayer?.release()
-        castPlayer = null
-
-        // release the current player
-        currentPlayer = null
+//        // release Cast player resources
+//        castPlayer?.setSessionAvailabilityListener(null)
+//        castPlayer?.release()
+//        castPlayer = null
+//
+//        // release the current player
+//        currentPlayer = null
     }
 
     /**

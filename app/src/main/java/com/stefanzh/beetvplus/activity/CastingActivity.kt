@@ -29,6 +29,15 @@ import java.net.URL
  */
 abstract class CastingActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_CATEGORY = "com.stefanzh.beetvplus.CATEGORY"
+        const val EXTRA_SERIAL = "com.stefanzh.beetvplus.SERIAL"
+        const val EXTRA_EPIZOD = "com.stefanzh.beetvplus.EPIZOD"
+
+        // RegEx to capture the video clip source location on the bTV website
+        val CLIP_REGEX = Regex("(//vid\\.btv\\.bg[\\w\\d/-]+\\.mp4)", RegexOption.MULTILINE)
+    }
+
     // set up HTTP Client
     val client = HttpClient(Android) {
         engine {

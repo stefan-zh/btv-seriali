@@ -22,7 +22,7 @@ class MainActivity : CastingActivity() {
     private val clickListener = object : OnCategoryClickListener {
         override fun onCategoryClick(category: Category) {
             val intent = Intent(this@MainActivity, ListPredavaneActivity::class.java).apply {
-                putExtra(ListPredavaneActivity.EXTRA_CATEGORY, category)
+                putExtra(EXTRA_CATEGORY, category)
             }
             startActivity(intent)
         }

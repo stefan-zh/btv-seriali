@@ -23,9 +23,7 @@ import java.net.URL
 
 class DisplaySerialActivity : CastingActivity() {
 
-    companion object {
-        const val EXTRA_SERIAL = "com.stefanzh.beetvplus.SERIAL"
-    }
+    private lateinit var tvShow: SerialLink
 
     // set up a click listener for each episode row
     private val clickListener = object : OnEpizodClickListener {
@@ -36,7 +34,8 @@ class DisplaySerialActivity : CastingActivity() {
                 applicationContext.toastLong(episodeLockedMsg)
             } else {
                 val intent = Intent(this@DisplaySerialActivity, DisplayClipActivity::class.java).apply {
-                    putExtra(DisplayClipActivity.EXTRA_EPIZOD, episode)
+                    putExtra(EXTRA_EPIZOD, episode)
+                    putExtra(EXTRA_SERIAL, tvShow)
                 }
                 startActivity(intent)
             }
@@ -49,7 +48,7 @@ class DisplaySerialActivity : CastingActivity() {
         setContentView(R.layout.activity_loading)
 
         // Get the TV show
-        val tvShow = intent.getParcelableExtra<SerialLink>(EXTRA_SERIAL)!!
+        tvShow = intent.getParcelableExtra(EXTRA_SERIAL)!!
         title = tvShow.title
 
         CoroutineScope(Dispatchers.Main).launch {

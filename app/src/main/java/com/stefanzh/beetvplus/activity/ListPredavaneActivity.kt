@@ -17,15 +17,11 @@ import java.net.URL
 
 class ListPredavaneActivity : CastingActivity() {
 
-    companion object {
-        const val EXTRA_CATEGORY = "com.stefanzh.beetvplus.CATEGORY"
-    }
-
     // set up a click listener for each TV show row
     private val clickListener = object : OnSerialLinkClickListener {
         override fun onSerialLinkClick(tvShow: SerialLink) {
             val intent = Intent(this@ListPredavaneActivity, DisplaySerialActivity::class.java).apply {
-                putExtra(DisplaySerialActivity.EXTRA_SERIAL, tvShow)
+                putExtra(EXTRA_SERIAL, tvShow)
             }
             startActivity(intent)
         }
