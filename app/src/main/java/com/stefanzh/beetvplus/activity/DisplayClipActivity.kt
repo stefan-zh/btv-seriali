@@ -69,6 +69,68 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     }
 
     /**
+     * Starting with API level 24 Android supports multiple windows. As our app can be visible but
+     * not active in split window mode, we need to initialize the player in onStart. Before API level
+     * 24 we wait as long as possible until we grab resources, so we wait until onResume before
+     * initializing the player.
+     */
+    override fun onStart() {
+        super.onStart()
+        if (Util.SDK_INT >= 24) {
+            initializePlayers()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (Util.SDK_INT < 24 || exoPlayer == null) {
+            initializePlayers()
+        }
+    }
+
+    /**
+     * Before API Level 24 there is no guarantee of onStop being called. So we have to release the
+     * player as early as possible in onPause. Starting with API Level 24 (which brought multi and
+     * split window mode) onStop is guaranteed to be called. In the paused state our activity is still
+     * visible so we wait to release the player until onStop.
+     */
+    override fun onPause() {
+        super.onPause()
+        if (Util.SDK_INT < 24) {
+            currentPlayer?.rememberState()
+            releaseLocalPlayer()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (Util.SDK_INT >= 24) {
+            currentPlayer?.rememberState()
+            releaseLocalPlayer()
+        }
+    }
+
+    /**
+     * We release the remote player when activity is destroyed
+     */
+    override fun onDestroy() {
+        releaseRemotePlayer()
+        currentPlayer = null
+        super.onDestroy()
+    }
+
+    /**
+     * CastPlayer [SessionAvailabilityListener] implementation.
+     */
+    override fun onCastSessionAvailable() {
+        playOnPlayer(castPlayer)
+    }
+
+    override fun onCastSessionUnavailable() {
+        playOnPlayer(exoPlayer)
+    }
+
+    /**
      * Prepares the local and remote players for playback.
      */
     private fun initializePlayers() {
@@ -85,8 +147,12 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         castPlayer = CastPlayer(castContext)
         castPlayer?.setSessionAvailabilityListener(this)
 
-        // start the local player
-        playOnPlayer(exoPlayer)
+        // start the playback
+        if (castPlayer?.isCastSessionAvailable == true) {
+            playOnPlayer(castPlayer)
+        } else {
+            playOnPlayer(exoPlayer)
+        }
     }
 
     /**
@@ -137,56 +203,35 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     }
 
     /**
-     * Starting with API level 24 Android supports multiple windows. As our app can be visible but
-     * not active in split window mode, we need to initialize the player in onStart. Before API level
-     * 24 we wait as long as possible until we grab resources, so we wait until onResume before
-     * initializing the player.
+     * Sets the current player to the selected player and starts playback.
      */
-    override fun onStart() {
-        super.onStart()
-        if (Util.SDK_INT >= 24) {
-            initializePlayers()
+    private fun playOnPlayer(player: Player?) {
+        if (currentPlayer == player) {
+            return
         }
-    }
 
-    override fun onResume() {
-        super.onResume()
-        if (Util.SDK_INT < 24 || exoPlayer == null) {
-            initializePlayers()
+        // save state from the existing player
+        currentPlayer?.let {
+            if (it.playbackState != Player.STATE_ENDED) {
+                it.rememberState()
+            }
+            it.stop(true)
         }
-    }
 
-    /**
-     * Before API Level 24 there is no guarantee of onStop being called. So we have to release the
-     * player as early as possible in onPause. Starting with API Level 24 (which brought multi and
-     * split window mode) onStop is guaranteed to be called. In the paused state our activity is still
-     * visible so we wait to release the player until onStop.
-     */
-    override fun onPause() {
-        super.onPause()
-        if (Util.SDK_INT < 24 && currentPlayer == exoPlayer) {
-            rememberState(exoPlayer)
-            releaseLocalPlayer()
-        }
-    }
+        // set the new player
+        currentPlayer = player
 
-    override fun onStop() {
-        super.onStop()
-        if (Util.SDK_INT >= 24 && currentPlayer == exoPlayer) {
-            rememberState(exoPlayer)
-            releaseLocalPlayer()
-        }
+        // set up the playback on a background thread to free the main thread
+        CoroutineScope(Dispatchers.Main).launch { startPlayback() }
     }
 
     /**
      * Remembers the state of the playback of this Player.
      */
-    private fun rememberState(player: Player?) {
-        player?.let {
-            playWhenReady = it.playWhenReady
-            playbackPosition = it.currentPosition
-            currentWindow = it.currentWindowIndex
-        }
+    private fun Player.rememberState() {
+        this@DisplayClipActivity.playWhenReady = playWhenReady
+        this@DisplayClipActivity.playbackPosition = currentPosition
+        this@DisplayClipActivity.currentWindow = currentWindowIndex
     }
 
     /**
@@ -197,6 +242,16 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         exoPlayer = null
         playerView.player = null
     }
+
+    /**
+     * Releases the resources of the remote player back to the system.
+     */
+    private fun releaseRemotePlayer() {
+        castPlayer?.setSessionAvailabilityListener(null)
+        castPlayer?.release()
+        castPlayer = null
+    }
+
 
     /**
      * Extracts the video clip link of the TV show.
@@ -257,39 +312,5 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         } else {
             enterFullScreen()
         }
-    }
-
-    // CastPlayer.SessionAvailabilityListener implementation.
-    override fun onCastSessionAvailable() {
-        playOnPlayer(castPlayer)
-    }
-
-    override fun onCastSessionUnavailable() {
-        playOnPlayer(exoPlayer)
-    }
-
-    /**
-     * Sets the current player to the selected player and starts playback.
-     */
-    private fun playOnPlayer(player: Player?) {
-        if (currentPlayer == player) {
-            return
-        }
-
-        // TODO: view management
-
-        // save state from the existing player
-        currentPlayer?.let {
-            if (it.playbackState != Player.STATE_ENDED) {
-                rememberState(it)
-            }
-            it.stop(true)
-        }
-
-        // set the new player
-        currentPlayer = player
-
-        // set up the playback on a background thread to free the main thread
-        CoroutineScope(Dispatchers.Main).launch { startPlayback() }
     }
 }
