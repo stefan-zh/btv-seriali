@@ -144,8 +144,12 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         defaultLayoutParams = playerView.layoutParams
 
         // create the CastPlayer that communicates with receiver app
-        castPlayer = CastPlayer(castContext)
-        castPlayer?.setSessionAvailabilityListener(this)
+        // but because we don't release the CastPlayer on each onPause()/onStop(), we don't have
+        // to recreate it if it exists and the Activity wakes up
+        if (castPlayer == null) {
+            castPlayer = CastPlayer(castContext)
+            castPlayer?.setSessionAvailabilityListener(this)
+        }
 
         // start the playback
         if (castPlayer?.isCastSessionAvailable == true) {
@@ -186,16 +190,14 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         // if the current player is the CastPlayer, play from it
         if (currentPlayer == castPlayer) {
             val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_TV_SHOW)
-            metadata.putString(MediaMetadata.KEY_TITLE, serial.title)
-            metadata.putString(MediaMetadata.KEY_SUBTITLE, tvShowEpisode.name)
+            metadata.putString(MediaMetadata.KEY_TITLE, tvShowEpisode.name)
+            metadata.putString(MediaMetadata.KEY_SERIES_TITLE, serial.title)
             metadata.addImage(WebImage(Uri.parse(serial.imageUrl)))
-            metadata.addImage(WebImage(Uri.parse(tvShowEpisode.imageUrl)))
 
             val mediaInfo = MediaInfo.Builder(videoClipUrl)
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setContentType(MimeTypes.VIDEO_MP4)
                 .setMetadata(metadata)
-//                .setCustomData(DefaultMediaItemConverter.getCustomData(item))
                 .build()
             val mediaItem = MediaQueueItem.Builder(mediaInfo).build()
             castPlayer?.loadItem(mediaItem, playbackPosition)
