@@ -9,7 +9,6 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.ext.cast.CastPlayer
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
@@ -17,12 +16,14 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.MimeTypes
 import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.cast.MediaInfo
+import com.google.android.gms.cast.MediaLoadRequestData
 import com.google.android.gms.cast.MediaMetadata
-import com.google.android.gms.cast.MediaQueueItem
 import com.google.android.gms.common.images.WebImage
 import com.stefanzh.beetvplus.Epizod
 import com.stefanzh.beetvplus.R
 import com.stefanzh.beetvplus.SerialLink
+import com.stefanzh.beetvplus.cast.CastPlayer
+import com.stefanzh.beetvplus.cast.PlaybackLocation
 import io.ktor.client.request.get
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +37,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     private lateinit var videoClipUrl: String
 
     // the local and remote players
-    private var exoPlayer: SimpleExoPlayer? = null
-    private var castPlayer: CastPlayer? = null
-    private var currentPlayer: Player? = null
+    private var localPlayer: SimpleExoPlayer? = null
+    private var remotePlayer: CastPlayer? = null
+    private var currentLocation: PlaybackLocation = PlaybackLocation.LOCAL
 
     // views associated with the players
     private lateinit var playerView: PlayerView
@@ -83,7 +84,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
     override fun onResume() {
         super.onResume()
-        if (Util.SDK_INT < 24 || exoPlayer == null) {
+        if (Util.SDK_INT < 24 || localPlayer == null) {
             initializePlayers()
         }
     }
@@ -97,7 +98,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     override fun onPause() {
         super.onPause()
         if (Util.SDK_INT < 24) {
-            currentPlayer?.rememberState()
+            localPlayer?.rememberState()
             releaseLocalPlayer()
         }
     }
@@ -105,7 +106,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     override fun onStop() {
         super.onStop()
         if (Util.SDK_INT >= 24) {
-            currentPlayer?.rememberState()
+            localPlayer?.rememberState()
             releaseLocalPlayer()
         }
     }
@@ -115,7 +116,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     override fun onDestroy() {
         releaseRemotePlayer()
-        currentPlayer = null
         super.onDestroy()
     }
 
@@ -123,11 +123,11 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * CastPlayer [SessionAvailabilityListener] implementation.
      */
     override fun onCastSessionAvailable() {
-        playOnPlayer(castPlayer)
+        playOn(PlaybackLocation.REMOTE)
     }
 
     override fun onCastSessionUnavailable() {
-        playOnPlayer(exoPlayer)
+        playOn(PlaybackLocation.LOCAL)
     }
 
     /**
@@ -136,8 +136,8 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     private fun initializePlayers() {
         // first thing to do is set up the player to avoid the double initialization that happens
         // sometimes if onStart() runs and then onResume() checks if the player is null
-        exoPlayer = SimpleExoPlayer.Builder(this).build()
-        playerView.player = exoPlayer
+        localPlayer = SimpleExoPlayer.Builder(this).build()
+        playerView.player = localPlayer
 
         // capture the layout parameters before going into fullscreen mode
         // we'll use this when we exit full screen
@@ -146,16 +146,16 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         // create the CastPlayer that communicates with receiver app
         // but because we don't release the CastPlayer on each onPause()/onStop(), we don't have
         // to recreate it if it exists and the Activity wakes up
-        if (castPlayer == null) {
-            castPlayer = CastPlayer(castContext)
-            castPlayer?.setSessionAvailabilityListener(this)
+        if (remotePlayer == null) {
+            remotePlayer = CastPlayer(castContext)
+            remotePlayer?.setSessionAvailabilityListener(this)
         }
 
         // start the playback
-        if (castPlayer?.isCastSessionAvailable == true) {
-            playOnPlayer(castPlayer)
+        if (remotePlayer?.isCastSessionAvailable() == true) {
+            playOn(PlaybackLocation.REMOTE)
         } else {
-            playOnPlayer(exoPlayer)
+            playOn(PlaybackLocation.LOCAL)
         }
     }
 
@@ -170,16 +170,16 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         }
 
         // if the current player is the ExoPlayer, play from it
-        if (currentPlayer == exoPlayer) {
+        if (currentLocation == PlaybackLocation.LOCAL) {
             // build the MediaSource from the URI
             val uri = Uri.parse(videoClipUrl)
             val dataSourceFactory = DefaultDataSourceFactory(this@DisplayClipActivity, "exoplayer-agent")
             val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri)
 
             // use stored state (if any) to resume (or start) playback
-            exoPlayer?.playWhenReady = playWhenReady
-            exoPlayer?.seekTo(currentWindow, playbackPosition)
-            exoPlayer?.prepare(mediaSource, false, false)
+            localPlayer?.playWhenReady = playWhenReady
+            localPlayer?.seekTo(currentWindow, playbackPosition)
+            localPlayer?.prepare(mediaSource, false, false)
 
             // if previously in full screen, resume it
             if (isFullScreenMode) {
@@ -188,7 +188,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         }
 
         // if the current player is the CastPlayer, play from it
-        if (currentPlayer == castPlayer) {
+        if (currentLocation == PlaybackLocation.REMOTE) {
             val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_TV_SHOW)
             metadata.putString(MediaMetadata.KEY_TITLE, tvShowEpisode.name)
             metadata.putString(MediaMetadata.KEY_SERIES_TITLE, serial.title)
@@ -199,29 +199,41 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
                 .setContentType(MimeTypes.VIDEO_MP4)
                 .setMetadata(metadata)
                 .build()
-            val mediaItem = MediaQueueItem.Builder(mediaInfo).build()
-            castPlayer?.loadItem(mediaItem, playbackPosition)
+
+            // create MediaLoadRequest object
+            val request = MediaLoadRequestData.Builder()
+                .setMediaInfo(mediaInfo)
+                .setAutoplay(playWhenReady)
+                .setCurrentTime(playbackPosition)
+                .build()
+            remotePlayer?.loadItem(request)
         }
     }
 
     /**
      * Sets the current player to the selected player and starts playback.
      */
-    private fun playOnPlayer(player: Player?) {
-        if (currentPlayer == player) {
+    private fun playOn(playbackLocation: PlaybackLocation) {
+        if (currentLocation == playbackLocation) {
             return
         }
 
         // save state from the existing player
-        currentPlayer?.let {
-            if (it.playbackState != Player.STATE_ENDED) {
-                it.rememberState()
+        when (currentLocation) {
+            PlaybackLocation.LOCAL -> {
+                if (localPlayer?.playbackState != Player.STATE_ENDED) {
+                    localPlayer?.rememberState()
+                    localPlayer?.stop(true)
+                }
             }
-            it.stop(true)
+            PlaybackLocation.REMOTE -> {
+                remotePlayer?.rememberState()
+                remotePlayer?.stop()
+            }
         }
 
         // set the new player
-        currentPlayer = player
+        currentLocation = playbackLocation
 
         // set up the playback on a background thread to free the main thread
         CoroutineScope(Dispatchers.Main).launch { startPlayback() }
@@ -237,11 +249,20 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     }
 
     /**
+     * Remembers the state of the playback of the remote player.
+     */
+    private fun CastPlayer.rememberState() {
+        this@DisplayClipActivity.playWhenReady = playWhenReady
+        this@DisplayClipActivity.playbackPosition = currentPosition
+        this@DisplayClipActivity.currentWindow = currentWindowIndex
+    }
+
+    /**
      * Releases the resources of the local player back to the system.
      */
     private fun releaseLocalPlayer() {
-        exoPlayer?.release()
-        exoPlayer = null
+        localPlayer?.release()
+        localPlayer = null
         playerView.player = null
     }
 
@@ -249,9 +270,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Releases the resources of the remote player back to the system.
      */
     private fun releaseRemotePlayer() {
-        castPlayer?.setSessionAvailabilityListener(null)
-        castPlayer?.release()
-        castPlayer = null
+        remotePlayer?.setSessionAvailabilityListener(null)
+        remotePlayer?.release()
+        remotePlayer = null
     }
 
 
