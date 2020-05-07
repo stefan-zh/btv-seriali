@@ -39,7 +39,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     // the local and remote players
     private var localPlayer: SimpleExoPlayer? = null
     private var remotePlayer: CastPlayer? = null
-    private var currentLocation: PlaybackLocation? = null
+    private var currentPlayback: PlaybackLocation? = null
 
     // views associated with the players
     private lateinit var playerView: PlayerView
@@ -67,8 +67,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         playerView = findViewById(R.id.local_player_view)
         fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
         fullScreenButton.setOnClickListener { onFullScreenToggle() }
-
-        println("onCreate() complete")
     }
 
     /**
@@ -79,7 +77,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     override fun onStart() {
         super.onStart()
-        println("onStart() called")
         if (Util.SDK_INT >= 24) {
             initializePlayers()
         }
@@ -87,7 +84,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
     override fun onResume() {
         super.onResume()
-        println("onResume() called")
         if (Util.SDK_INT < 24 || localPlayer == null) {
             initializePlayers()
         }
@@ -102,25 +98,15 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     override fun onPause() {
         super.onPause()
         if (Util.SDK_INT < 24) {
-            localPlayer?.rememberState()
-            releaseLocalPlayer()
+            releasePlayers()
         }
     }
 
     override fun onStop() {
         super.onStop()
         if (Util.SDK_INT >= 24) {
-            localPlayer?.rememberState()
-            releaseLocalPlayer()
+            releasePlayers()
         }
-    }
-
-    /**
-     * We release the remote player when activity is destroyed
-     */
-    override fun onDestroy() {
-        releaseRemotePlayer()
-        super.onDestroy()
     }
 
     /**
@@ -138,7 +124,6 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Prepares the local and remote players for playback.
      */
     private fun initializePlayers() {
-        println("initializePlayers() called - local: $localPlayer, remote: $remotePlayer, playback: $currentLocation")
         // first thing to do is set up the player to avoid the double initialization that happens
         // sometimes if onStart() runs and then onResume() checks if the player is null
         localPlayer = SimpleExoPlayer.Builder(this).build()
@@ -149,12 +134,8 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         defaultLayoutParams = playerView.layoutParams
 
         // create the CastPlayer that communicates with receiver app
-        // but because we don't release the CastPlayer on each onPause()/onStop(), we don't have
-        // to recreate it if it exists and the Activity wakes up
-        if (remotePlayer == null) {
-            remotePlayer = CastPlayer(castContext)
-            remotePlayer?.setSessionAvailabilityListener(this)
-        }
+        remotePlayer = CastPlayer(castContext)
+        remotePlayer?.setSessionAvailabilityListener(this)
 
         // start the playback
         if (remotePlayer?.isCastSessionAvailable() == true) {
@@ -169,14 +150,13 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * on the current player (local or remote), whichever is active.
      */
     private suspend fun startPlayback() {
-        println("startPlayback() called, to play-on location: $currentLocation")
         // fetch the video clip URL if not initialized
         if (!::videoClipUrl.isInitialized) {
             videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
         }
 
         // if the current player is the ExoPlayer, play from it
-        if (currentLocation == PlaybackLocation.LOCAL) {
+        if (currentPlayback == PlaybackLocation.LOCAL) {
             // build the MediaSource from the URI
             val uri = Uri.parse(videoClipUrl)
             val dataSourceFactory = DefaultDataSourceFactory(this@DisplayClipActivity, "exoplayer-agent")
@@ -194,7 +174,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         }
 
         // if the current player is the CastPlayer, play from it
-        if (currentLocation == PlaybackLocation.REMOTE) {
+        if (currentPlayback == PlaybackLocation.REMOTE) {
             val metadata = MediaMetadata(MediaMetadata.MEDIA_TYPE_TV_SHOW)
             metadata.putString(MediaMetadata.KEY_TITLE, tvShowEpisode.name)
             metadata.putString(MediaMetadata.KEY_SERIES_TITLE, serial.title)
@@ -220,14 +200,13 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Sets the current player to the selected player and starts playback.
      */
     private fun playOn(playbackLocation: PlaybackLocation) {
-        println("playOn($playbackLocation) called, current location: $currentLocation")
-        if (currentLocation == playbackLocation) {
+        if (currentPlayback == playbackLocation) {
             // Do nothing.
             return
         }
 
         // save state from the existing player
-        when (currentLocation) {
+        when (currentPlayback) {
             PlaybackLocation.LOCAL -> {
                 if (localPlayer?.playbackState != Player.STATE_ENDED) {
                     localPlayer?.rememberState()
@@ -241,7 +220,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         }
 
         // set the new player
-        currentLocation = playbackLocation
+        currentPlayback = playbackLocation
 
         // set up the playback on a background thread to free the main thread
         CoroutineScope(Dispatchers.Main).launch { startPlayback() }
@@ -266,26 +245,25 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     }
 
     /**
-     * Releases the resources of the local player back to the system.
+     * Releases the local and remote players' resources back to the system.
      */
-    private fun releaseLocalPlayer() {
-        if (currentLocation == PlaybackLocation.LOCAL) {
-            currentLocation = null
+    private fun releasePlayers() {
+        when (currentPlayback) {
+            PlaybackLocation.LOCAL -> {
+                localPlayer?.rememberState()
+                localPlayer?.release()
+                localPlayer = null
+                playerView.player = null
+                currentPlayback = null
+            }
+            PlaybackLocation.REMOTE -> {
+                remotePlayer?.rememberState()
+                remotePlayer?.setSessionAvailabilityListener(null)
+                remotePlayer?.release()
+                remotePlayer = null
+            }
         }
-        localPlayer?.release()
-        localPlayer = null
-        playerView.player = null
     }
-
-    /**
-     * Releases the resources of the remote player back to the system.
-     */
-    private fun releaseRemotePlayer() {
-        remotePlayer?.setSessionAvailabilityListener(null)
-        remotePlayer?.release()
-        remotePlayer = null
-    }
-
 
     /**
      * Extracts the video clip link of the TV show.
