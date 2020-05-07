@@ -10,6 +10,10 @@ import com.google.android.gms.common.api.PendingResult
 
 class CastPlayer(private val castContext: CastContext) {
 
+    companion object {
+        const val PROGRESS_REPORT_PERIOD_MS: Long = 1000
+    }
+
     private val statusListener = StatusListener()
     private var sessionAvailabilityListener: SessionAvailabilityListener? = null
     private var remoteMediaClient: RemoteMediaClient? = null
@@ -70,7 +74,7 @@ class CastPlayer(private val castContext: CastContext) {
 
         // trigger callbacks
         if (client != null) {
-            client.addProgressListener(statusListener, 1000)
+            client.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS)
             sessionAvailabilityListener?.onCastSessionAvailable()
         } else {
             sessionAvailabilityListener?.onCastSessionUnavailable()
@@ -91,6 +95,9 @@ class CastPlayer(private val castContext: CastContext) {
      */
     fun stop() {
         _playWhenReady = false
+        remoteMediaClient?.let {
+            _currentPosition = it.approximateStreamPosition
+        }
         remoteMediaClient?.stop()
     }
 
