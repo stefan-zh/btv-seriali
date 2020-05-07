@@ -39,7 +39,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     // the local and remote players
     private var localPlayer: SimpleExoPlayer? = null
     private var remotePlayer: CastPlayer? = null
-    private var currentLocation: PlaybackLocation = PlaybackLocation.LOCAL
+    private var currentLocation: PlaybackLocation? = null
 
     // views associated with the players
     private lateinit var playerView: PlayerView
@@ -67,6 +67,8 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         playerView = findViewById(R.id.local_player_view)
         fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
         fullScreenButton.setOnClickListener { onFullScreenToggle() }
+
+        println("onCreate() complete")
     }
 
     /**
@@ -77,6 +79,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     override fun onStart() {
         super.onStart()
+        println("onStart() called")
         if (Util.SDK_INT >= 24) {
             initializePlayers()
         }
@@ -84,6 +87,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
     override fun onResume() {
         super.onResume()
+        println("onResume() called")
         if (Util.SDK_INT < 24 || localPlayer == null) {
             initializePlayers()
         }
@@ -134,6 +138,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Prepares the local and remote players for playback.
      */
     private fun initializePlayers() {
+        println("initializePlayers() called - local: $localPlayer, remote: $remotePlayer, playback: $currentLocation")
         // first thing to do is set up the player to avoid the double initialization that happens
         // sometimes if onStart() runs and then onResume() checks if the player is null
         localPlayer = SimpleExoPlayer.Builder(this).build()
@@ -164,6 +169,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * on the current player (local or remote), whichever is active.
      */
     private suspend fun startPlayback() {
+        println("startPlayback() called, to play-on location: $currentLocation")
         // fetch the video clip URL if not initialized
         if (!::videoClipUrl.isInitialized) {
             videoClipUrl = getEpisodeClipUrl(tvShowEpisode.link)
@@ -214,7 +220,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Sets the current player to the selected player and starts playback.
      */
     private fun playOn(playbackLocation: PlaybackLocation) {
+        println("playOn($playbackLocation) called, current location: $currentLocation")
         if (currentLocation == playbackLocation) {
+            // Do nothing.
             return
         }
 
@@ -261,6 +269,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      * Releases the resources of the local player back to the system.
      */
     private fun releaseLocalPlayer() {
+        if (currentLocation == PlaybackLocation.LOCAL) {
+            currentLocation = null
+        }
         localPlayer?.release()
         localPlayer = null
         playerView.player = null
