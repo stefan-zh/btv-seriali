@@ -12,12 +12,18 @@ android {
         targetSdkVersion 29
         versionCode 17
         versionName "1.7"
+        // renaming default "app-release.apk": https://stackoverflow.com/a/47049672/9698467
+        setProperty("archivesBaseName", "${rootProject.name}-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
