@@ -2,6 +2,8 @@ package com.stefanzh.beetvplus.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stefanzh.beetvplus.Category
@@ -29,8 +31,7 @@ class ListPredavaneActivity : CastingActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // start the loading screen
-        setContentView(R.layout.activity_loading)
+        setContentView(R.layout.activity_list_predavane)
 
         // Get the TV show category
         val category = intent.getParcelableExtra<Category>(EXTRA_CATEGORY)!!
@@ -40,8 +41,11 @@ class ListPredavaneActivity : CastingActivity() {
             // launch this call on UI thread but its result will be computed on IO thread
             val tvShows = getTvShows(category.link)
 
-            // if shows are retrieved successfully, set the view to the tv shows activity
-            setContentView(R.layout.activity_list_predavane)
+            // if shows are retrieved successfully, stop spinner and display the tv shows
+            findViewById<ProgressBar>(R.id.tv_show_spinner).visibility = View.GONE
+            findViewById<RecyclerView>(R.id.tv_show_list).visibility = View.VISIBLE
+
+            // create RecyclerView with TV shows
             val layoutManager = LinearLayoutManager(this@ListPredavaneActivity)
             val adapter = TvShowAdapter(tvShows, clickListener)
             findViewById<RecyclerView>(R.id.tv_show_list).prepare(layoutManager, adapter)

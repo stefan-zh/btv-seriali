@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stefanzh.beetvplus.Epizod
@@ -44,8 +46,7 @@ class DisplaySerialActivity : CastingActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // start the loading screen
-        setContentView(R.layout.activity_loading)
+        setContentView(R.layout.activity_display_serial)
 
         // Get the TV show
         tvShow = intent.getParcelableExtra(EXTRA_SERIAL)!!
@@ -54,8 +55,9 @@ class DisplaySerialActivity : CastingActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             val serial = getSerial(tvShow.link)
 
-            // if TV show is retrieved successfully, set the view to the tv show display activity
-            setContentView(R.layout.activity_display_serial)
+            // if TV show is retrieved successfully, stop the spinner and display tv show details
+            findViewById<ProgressBar>(R.id.display_serial_spinner).visibility = View.GONE
+            findViewById<NestedScrollView>(R.id.display_serial_view).visibility = View.VISIBLE
 
             // set the layout
             findViewById<TextView>(R.id.serial_title).apply { text = serial.title }

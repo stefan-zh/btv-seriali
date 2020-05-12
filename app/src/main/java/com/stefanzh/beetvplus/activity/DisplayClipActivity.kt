@@ -54,16 +54,13 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // start the loading screen
-        setContentView(R.layout.activity_loading)
+        setContentView(R.layout.activity_display_clip)
 
         // Get the TV show episode
         tvShowEpisode = intent.getParcelableExtra(EXTRA_EPIZOD)!!
         serial = intent.getParcelableExtra(EXTRA_SERIAL)!!
         title = tvShowEpisode.name
 
-        // set the view to the clip display activity
-        setContentView(R.layout.activity_display_clip)
         playerView = findViewById(R.id.local_player_view)
         fullScreenButton = findViewById(R.id.exo_fullscreen_icon)
         fullScreenButton.setOnClickListener { onFullScreenToggle() }

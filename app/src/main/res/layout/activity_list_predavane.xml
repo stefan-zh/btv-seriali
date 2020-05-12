@@ -12,7 +12,16 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:scrollbars="vertical"
+        android:visibility="gone"
         tools:listitem="@layout/fragment_tv_show" />
+
+    <!-- default spinner -->
+    <ProgressBar
+        android:id="@+id/tv_show_spinner"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
 
     <!-- this fragment gets picked up automatically when there is a Cast session -->
     <fragment
