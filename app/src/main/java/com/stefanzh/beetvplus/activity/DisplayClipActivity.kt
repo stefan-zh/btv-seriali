@@ -262,20 +262,19 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     private fun releasePlayers() {
         when (currentPlayback) {
-            PlaybackLocation.LOCAL -> {
-                localPlayer?.rememberState()
-                localPlayer?.release()
-                localPlayer = null
-                playerView.player = null
-                currentPlayback = null
-            }
-            PlaybackLocation.REMOTE -> {
-                remotePlayer?.rememberState()
-                remotePlayer?.setSessionAvailabilityListener(null)
-                remotePlayer?.release()
-                remotePlayer = null
-            }
+            PlaybackLocation.LOCAL -> { localPlayer?.rememberState() }
+            PlaybackLocation.REMOTE -> { remotePlayer?.rememberState() }
         }
+        // release local player
+        localPlayer?.release()
+        localPlayer = null
+        playerView.player = null
+        currentPlayback = null
+
+        // release remote player
+        remotePlayer?.setSessionAvailabilityListener(null)
+        remotePlayer?.release()
+        remotePlayer = null
     }
 
     /**
