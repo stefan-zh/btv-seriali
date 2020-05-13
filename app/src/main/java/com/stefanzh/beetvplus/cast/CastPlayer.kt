@@ -81,6 +81,16 @@ class CastPlayer(private val castContext: CastContext) {
         }
     }
 
+    // Register a RemoteMediaClient callback
+    fun registerCallback(callback: RemoteMediaClient.Callback) {
+        remoteMediaClient?.registerCallback(callback)
+    }
+
+    // Unregister a RemoteMediaClient callback
+    fun unregisterCallback(callback: RemoteMediaClient.Callback) {
+        remoteMediaClient?.unregisterCallback(callback)
+    }
+
     /**
      * Loads the [MediaLoadRequestData] onto the remote client.
      */

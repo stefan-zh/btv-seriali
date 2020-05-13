@@ -1,5 +1,6 @@
 package com.stefanzh.beetvplus.activity
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -18,10 +19,12 @@ import com.google.android.exoplayer2.util.Util
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadRequestData
 import com.google.android.gms.cast.MediaMetadata
+import com.google.android.gms.cast.framework.media.RemoteMediaClient
 import com.google.android.gms.common.images.WebImage
 import com.stefanzh.beetvplus.Epizod
 import com.stefanzh.beetvplus.R
 import com.stefanzh.beetvplus.SerialLink
+import com.stefanzh.beetvplus.cast.CastExpandedController
 import com.stefanzh.beetvplus.cast.CastPlayer
 import com.stefanzh.beetvplus.cast.PlaybackLocation
 import io.ktor.client.request.get
@@ -29,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
 
@@ -189,6 +193,18 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
                 .setAutoplay(playWhenReady)
                 .setCurrentTime(playbackPosition)
                 .build()
+
+            // register Expanded Controller on playback from this Activity
+            // https://codelabs.developers.google.com/codelabs/cast-videos-android/index.html#9
+            remotePlayer?.registerCallback(object : RemoteMediaClient.Callback() {
+                override fun onStatusUpdated() {
+                    val intent = Intent(this@DisplayClipActivity, CastExpandedController::class.java)
+                    startActivity(intent)
+                    remotePlayer?.unregisterCallback(this)
+                }
+            })
+
+            // start content playback on remote controller
             remotePlayer?.loadItem(request)
         }
     }
