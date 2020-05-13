@@ -262,16 +262,20 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
      */
     private fun releasePlayers() {
         when (currentPlayback) {
-            PlaybackLocation.LOCAL -> { localPlayer?.rememberState() }
-            PlaybackLocation.REMOTE -> { remotePlayer?.rememberState() }
+            PlaybackLocation.LOCAL -> {
+                localPlayer?.rememberState()
+                localPlayer?.release()
+                localPlayer = null
+                playerView.player = null
+                currentPlayback = null
+            }
+            PlaybackLocation.REMOTE -> {
+                remotePlayer?.rememberState()
+            }
         }
-        // release local player
-        localPlayer?.release()
-        localPlayer = null
-        playerView.player = null
-        currentPlayback = null
 
-        // release remote player
+        // always release remote player to remove the cast status change listener
+        // which will otherwise bring back the extended controller with the last cast video
         remotePlayer?.setSessionAvailabilityListener(null)
         remotePlayer?.release()
         remotePlayer = null
