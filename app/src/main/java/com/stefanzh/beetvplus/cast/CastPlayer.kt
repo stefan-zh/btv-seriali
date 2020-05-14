@@ -67,17 +67,22 @@ class CastPlayer(private val castContext: CastContext) {
             // Do nothing.
             return
         }
-
-        // assign new client
+        // we remove the progress listener and we'll add it back if needed
         remoteMediaClient?.removeProgressListener(statusListener)
-        remoteMediaClient = client
 
         // trigger callbacks
         if (client != null) {
-            client.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS)
+            // assign the new client before calling onCastSessionAvailable() to make it
+            // available to the consumers
+            remoteMediaClient = client
+            remoteMediaClient?.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS)
             sessionAvailabilityListener?.onCastSessionAvailable()
         } else {
             sessionAvailabilityListener?.onCastSessionUnavailable()
+            // clear the client *after* calling onCastSessionUnavailable() to make the client
+            // available to the consumers in that callback (for example so that consumers
+            // can extract the playback state one last time, etc.)
+            remoteMediaClient = null
         }
     }
 
@@ -144,7 +149,7 @@ class CastPlayer(private val castContext: CastContext) {
             setRemoteMediaClient(castSession?.remoteMediaClient)
         }
 
-        override fun onSessionEnded(castSession: CastSession?, error: Int) {
+        override fun onSessionEnding(castSession: CastSession?) {
             setRemoteMediaClient(null)
         }
 
@@ -164,7 +169,7 @@ class CastPlayer(private val castContext: CastContext) {
             // Do nothing.
         }
 
-        override fun onSessionEnding(castSession: CastSession?) {
+        override fun onSessionEnded(castSession: CastSession?, error: Int) {
             // Do nothing.
         }
 
