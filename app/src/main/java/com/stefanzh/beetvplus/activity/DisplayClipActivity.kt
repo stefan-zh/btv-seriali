@@ -212,8 +212,8 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
     /**
      * Sets the current player to the selected player and starts playback.
      */
-    private fun playOn(playbackLocation: PlaybackLocation) {
-        if (currentPlayback == playbackLocation) {
+    private fun playOn(nextPlayback: PlaybackLocation) {
+        if (currentPlayback == nextPlayback) {
             // Do nothing.
             return
         }
@@ -233,7 +233,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         }
 
         // set the new player
-        currentPlayback = playbackLocation
+        currentPlayback = nextPlayback
 
         // set up the playback on a background thread to free the main thread
         CoroutineScope(Dispatchers.Main).launch { startPlayback() }
