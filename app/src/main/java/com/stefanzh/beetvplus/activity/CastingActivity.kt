@@ -1,6 +1,7 @@
 package com.stefanzh.beetvplus.activity
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -70,9 +71,18 @@ abstract class CastingActivity : AppCompatActivity() {
      * When back button is pressed, close this activity, which will go back to previous screen
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
+        when (item.itemId) {
+            // when back arrow button is pressed
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+            // when the About page is selected
+            R.id.action_about -> {
+                val intent = Intent(this, AboutActivity::class.java)
+                startActivity(intent)
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
