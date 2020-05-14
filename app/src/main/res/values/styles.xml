@@ -12,4 +12,10 @@
         <item name="android:contentDescription">@string/exo_controls_fullscreen_description</item>
     </style>
 
+    <!-- Theme for the Expanded Controller -->
+    <style name="Theme.CastVideos" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- https://developers.google.com/android/reference/com/google/android/gms/cast/framework/media/widget/ExpandedControllerActivity#set-toolbar-theme -->
+        <item name="castExpandedControllerToolbarStyle">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
 </resources>
