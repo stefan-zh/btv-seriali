@@ -10,8 +10,8 @@ android {
         applicationId "com.stefanzh.beetvplus"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 20
-        versionName "2.0"
+        versionCode 21
+        versionName "2.1"
         // renaming default "app-release.apk": https://stackoverflow.com/a/47049672/9698467
         setProperty("archivesBaseName", "${rootProject.name}-$versionName")
 
