@@ -7,7 +7,6 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.widget.NestedScrollView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stefanzh.beetvplus.Epizod
 import com.stefanzh.beetvplus.R
@@ -70,9 +69,8 @@ class DisplaySerialActivity : CastingActivity() {
                 episodesListView.visibility = View.GONE
                 findViewById<TextView>(R.id.empty_episodes).apply { visibility = View.VISIBLE }
             } else {
-                val layoutManager = LinearLayoutManager(this@DisplaySerialActivity)
                 val adapter = EpisodeAdapter(serial.episodes, clickListener)
-                episodesListView.prepare(layoutManager, adapter)
+                episodesListView.prepare(this@DisplaySerialActivity, adapter)
             }
         }
     }

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stefanzh.beetvplus.Category
 import com.stefanzh.beetvplus.R
@@ -46,9 +45,8 @@ class ListPredavaneActivity : CastingActivity() {
             findViewById<RecyclerView>(R.id.tv_show_list).visibility = View.VISIBLE
 
             // create RecyclerView with TV shows
-            val layoutManager = LinearLayoutManager(this@ListPredavaneActivity)
             val adapter = TvShowAdapter(tvShows, clickListener)
-            findViewById<RecyclerView>(R.id.tv_show_list).prepare(layoutManager, adapter)
+            findViewById<RecyclerView>(R.id.tv_show_list).prepare(this@ListPredavaneActivity, adapter)
         }
     }
 

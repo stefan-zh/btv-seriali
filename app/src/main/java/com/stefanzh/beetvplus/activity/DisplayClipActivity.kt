@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageButton
-import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener
@@ -306,7 +306,7 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
         supportActionBar?.hide()
 
         // set the PlayerView to occupy the whole screen
-        playerView.layoutParams = LinearLayout.LayoutParams(
+        playerView.layoutParams = RelativeLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )

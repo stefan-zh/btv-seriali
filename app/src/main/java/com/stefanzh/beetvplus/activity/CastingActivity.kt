@@ -116,21 +116,22 @@ fun String.prefixURL(): String {
  * Prepares a RecyclerView with a LinearLayoutManager and a data Adapter.
  */
 fun <T : RecyclerView.ViewHolder> RecyclerView.prepare(
-    viewManager: LinearLayoutManager,
+    context: Context,
     viewAdapter: RecyclerView.Adapter<T>
 ): RecyclerView {
+    val linearLayout = LinearLayoutManager(context)
     // use this setting to improve performance if you know that changes
     // in content do not change the layout size of the RecyclerView
     setHasFixedSize(true)
 
     // use a linear layout manager, it's a convenient default for lists
-    layoutManager = viewManager
+    layoutManager = linearLayout
 
     // specify an viewAdapter
     adapter = viewAdapter
 
     // apply a divider on the RecyclerView to nicely outline each item
-    val divider = DividerItemDecoration(context, viewManager.orientation)
+    val divider = DividerItemDecoration(context, linearLayout.orientation)
     val drawable = ContextCompat.getDrawable(context, R.drawable.recycler_view_divider)
     drawable?.let {
         divider.setDrawable(it)

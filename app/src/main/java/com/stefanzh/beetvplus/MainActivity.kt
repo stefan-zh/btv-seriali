@@ -2,7 +2,6 @@ package com.stefanzh.beetvplus
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.stefanzh.beetvplus.activity.CastingActivity
 import com.stefanzh.beetvplus.activity.ListPredavaneActivity
@@ -36,8 +35,7 @@ class MainActivity : CastingActivity() {
         setContentView(R.layout.activity_main)
 
         // list the categories
-        val layoutManager = LinearLayoutManager(this)
         val adapter = CategoryAdapter(categories, clickListener)
-        findViewById<RecyclerView>(R.id.category_list).prepare(layoutManager, adapter)
+        findViewById<RecyclerView>(R.id.category_list).prepare(this, adapter)
     }
 }
