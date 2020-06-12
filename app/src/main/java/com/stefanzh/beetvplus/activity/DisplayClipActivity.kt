@@ -168,6 +168,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
             localPlayer?.seekTo(currentWindow, playbackPosition)
             localPlayer?.prepare(mediaSource, false, false)
 
+            // keep screen on while watching locally
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
             // if previously in full screen, resume it
             if (isFullScreenMode) {
                 enterFullScreen()
@@ -203,6 +206,9 @@ class DisplayClipActivity : CastingActivity(), SessionAvailabilityListener {
                     remotePlayer?.unregisterCallback(this)
                 }
             })
+
+            // if going to watch remotely, we can remove the flag that keeps screen on
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
             // start content playback on remote controller
             remotePlayer?.loadItem(request)
