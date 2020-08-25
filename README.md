@@ -19,6 +19,12 @@ Chromecast. Приложението е създадено отделно от b
 
 ### Снимки
 
+![Категория "Сериали"](https://github.com/stefan-zh/btv-seriali/blob/master/screenshots/seriali-view.png "Категория \"Сериали\"")
+
+![Сериалът "Свободен дух"](https://github.com/stefan-zh/btv-seriali/blob/master/screenshots/svoboden-duh-view.png "Сериалът \"Свободен дух\"")
+
+![Режим цял екран](https://github.com/stefan-zh/btv-seriali/blob/master/screenshots/epizod-fullscreen-view.png "Сериалът Режим цял екран")
+
 ### Демо
 
 [![beeTV Plus demo video](https://github.com/stefan-zh/btv-seriali/raw/master/screenshots/beetv-plus-demo-video-screenshot.png)](https://youtu.be/RSMxzZADCLs)
