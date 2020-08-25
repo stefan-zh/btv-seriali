@@ -10,14 +10,12 @@ Chromecast. Приложението е създадено отделно от b
 Приложението е достъпно на Android 6 (Marshmallow, API 23) и нагоре. То е напълно безплатно. Също
 така приложението не събира лични данни или информация за потреблението от вашия телефон или таблет.
 
-Демонстрация: https://www.youtube.com/watch?v=RSMxzZADCLs
-
 Ще се радваме да споделите вашите впечатления, ако ви харесва или ако сте намерили някакви
 неизправности. Всякакви препоръки също са добре дошли.
 
 Приятно гледане!
 
-### Снимки
+### Снимки:
 
 ![Категория "Сериали"](https://github.com/stefan-zh/btv-seriali/blob/master/screenshots/seriali-view.png "Категория \"Сериали\"")
 
@@ -25,6 +23,6 @@ Chromecast. Приложението е създадено отделно от b
 
 ![Режим цял екран](https://github.com/stefan-zh/btv-seriali/blob/master/screenshots/epizod-fullscreen-view.png "Сериалът Режим цял екран")
 
-### Демо
+### Демо:
 
 [![beeTV Plus demo video](https://github.com/stefan-zh/btv-seriali/raw/master/screenshots/beetv-plus-demo-video-screenshot.png)](https://youtu.be/RSMxzZADCLs)
