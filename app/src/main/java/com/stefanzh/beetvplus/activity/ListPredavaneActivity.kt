@@ -58,7 +58,7 @@ class ListPredavaneActivity : CastingActivity() {
         val response = client.get<String>(categoryLink)
         // parses the HTML and extracts the links to the TV shows
         val doc = Jsoup.parse(response)
-        val categories = doc.select("div.bg-order > ul > li")
+        val categories = doc.select("li.rows > ul > li")
         val asyncTasks = categories.flatMap { cat ->
             val anchors = cat.select("div.image > a")
             anchors.map {
