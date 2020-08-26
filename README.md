@@ -1,4 +1,5 @@
 ﻿# beeTV Plus
+*(for English, see YouTube video with English captions: https://www.youtube.com/watch?v=RSMxzZADCLs)*
 
 Това е приложение, на което може да гледате записите на Вашите любими предавания и сериали от
 [сайта на bTV Plus](https://btvplus.bg) на своите мобилни устройства. Чрез използването на
