@@ -26,4 +26,4 @@ Chromecast. Приложението е създадено отделно от b
 
 ### Демо:
 
-[![beeTV Plus demo video](https://github.com/stefan-zh/btv-seriali/raw/master/screenshots/beetv-plus-demo-video-screenshot.png)](https://youtu.be/RSMxzZADCLs)
+[![beeTV Plus demo video](https://github.com/stefan-zh/btv-seriali/raw/master/screenshots/beetv-plus-demo-video-screenshot.png)](https://s3.eu-central-1.amazonaws.com/stefanzh.com/beetv-plus-demo-video.mp4)
